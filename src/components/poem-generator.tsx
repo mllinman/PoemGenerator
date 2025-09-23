@@ -19,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -32,6 +33,14 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { generatePoemAction, customizePoemAction } from '@/lib/actions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 
 type CustomizationOptions = {
   style: string;
@@ -52,6 +61,8 @@ export default function PoemGenerator() {
     tone: 'reflective',
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [poemTitle, setPoemTitle] = useState('');
 
   useEffect(() => {
     const defaultImage = PlaceHolderImages.find((img) => img.id === 'ashleigh');
@@ -112,6 +123,7 @@ export default function PoemGenerator() {
     const result = await generatePoemAction({ photoDataUri: imageDataUri });
     if (result.success) {
       setPoem(result.poem);
+      setPoemTitle('Untitled Poem');
     } else {
       toast({
         variant: 'destructive',
@@ -187,11 +199,25 @@ export default function PoemGenerator() {
       });
       return;
     }
+    
+    setIsSaveDialogOpen(true);
+  };
+
+  const confirmSave = () => {
+    if (!poem || !imageDataUri || !poemTitle) {
+      toast({
+        variant: 'destructive',
+        title: 'Cannot Save',
+        description: 'A title is required to save the poem.',
+      });
+      return;
+    }
 
     try {
       const savedPoems = JSON.parse(localStorage.getItem('savedPoems') || '[]');
       const newPoem = {
         id: Date.now().toString(),
+        title: poemTitle,
         poem,
         imageDataUri,
         createdAt: new Date().toISOString(),
@@ -202,6 +228,8 @@ export default function PoemGenerator() {
         title: 'Poem Saved',
         description: 'Your poem has been saved successfully.',
       });
+      setIsSaveDialogOpen(false);
+      setPoemTitle('');
     } catch (error) {
       console.error('Failed to save poem:', error);
       toast({
@@ -214,185 +242,210 @@ export default function PoemGenerator() {
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
-      <aside className="lg:col-span-2 space-y-8">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl flex items-center gap-2">
-              <ImageUp className="h-6 w-6 text-primary" />
-              Inspire the Muse
-            </CardTitle>
-            <CardDescription>
-              Upload an image and let our AI craft a unique poem for you.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="aspect-[3/4] w-full relative overflow-hidden rounded-lg border bg-muted">
-              {imagePreviewUrl ? (
-                <Image
-                  src={imagePreviewUrl}
-                  alt="Poem inspiration"
-                  fill
-                  className="object-cover"
-                  data-ai-hint="woman portrait"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Skeleton className="w-full h-full" />
-                </div>
-              )}
-            </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-              accept="image/*"
-            />
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <ImageUp className="mr-2 h-4 w-4" />
-              Upload Image
-            </Button>
-          </CardContent>
-          <CardFooter>
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={handleGenerate}
-              disabled={!imageDataUri || isGenerating}
-            >
-              {isGenerating ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              {isGenerating ? 'Generating...' : 'Generate Poem'}
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card className="shadow-lg">
-          <form onSubmit={handleCustomize}>
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
+        <aside className="lg:col-span-2 space-y-8">
+          <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="font-headline text-2xl flex items-center gap-2">
-                <SlidersHorizontal className="h-6 w-6 text-primary" />
-                Customize
+                <ImageUp className="h-6 w-6 text-primary" />
+                Inspire the Muse
               </CardTitle>
               <CardDescription>
-                Refine the style, length, and tone of your poem.
+                Upload an image and let our AI craft a unique poem for you.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="style">Style</Label>
-                <Select value={customization.style} onValueChange={handleCustomizationChange('style')} name="style">
-                  <SelectTrigger id="style">
-                    <SelectValue placeholder="Select style" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="free_verse">Free Verse</SelectItem>
-                    <SelectItem value="shakespearean_sonnet">Shakespearean Sonnet</SelectItem>
-                    <SelectItem value="haiku">Haiku</SelectItem>
-                    <SelectItem value="limerick">Limerick</SelectItem>
-                    <SelectItem value="modernist">Modernist</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="aspect-[3/4] w-full relative overflow-hidden rounded-lg border bg-muted">
+                {imagePreviewUrl ? (
+                  <Image
+                    src={imagePreviewUrl}
+                    alt="Poem inspiration"
+                    fill
+                    className="object-cover"
+                    data-ai-hint="woman portrait"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Skeleton className="w-full h-full" />
+                  </div>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="length">Length</Label>
-                <Select value={customization.length} onValueChange={handleCustomizationChange('length')} name="length">
-                  <SelectTrigger id="length">
-                    <SelectValue placeholder="Select length" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="short">Short</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="long">Long</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tone">Tone</Label>
-                <Select value={customization.tone} onValueChange={handleCustomizationChange('tone')} name="tone">
-                  <SelectTrigger id="tone">
-                    <SelectValue placeholder="Select tone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="reflective">Reflective</SelectItem>
-                    <SelectItem value="joyful">Joyful</SelectItem>
-                    <SelectItem value="melancholic">Melancholic</SelectItem>
-                    <SelectItem value="humorous">Humorous</SelectItem>
-                    <SelectItem value="romantic">Romantic</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+              />
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <ImageUp className="mr-2 h-4 w-4" />
+                Upload Image
+              </Button>
             </CardContent>
             <CardFooter>
               <Button
-                type="submit"
                 className="w-full"
-                disabled={!poem || isCustomizing || isGenerating}
-                variant="secondary"
+                size="lg"
+                onClick={handleGenerate}
+                disabled={!imageDataUri || isGenerating}
               >
-                {isCustomizing ? (
+                {isGenerating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                {isCustomizing ? 'Refining...' : 'Refine Poem'}
+                {isGenerating ? 'Generating...' : 'Generate Poem'}
               </Button>
             </CardFooter>
-          </form>
-        </Card>
-      </aside>
+          </Card>
 
-      <main className="lg:col-span-3">
-        <Card className="shadow-lg sticky top-8 min-h-[80vh]">
-          <CardHeader className="flex flex-row items-start justify-between">
-            <div>
-              <CardTitle className="font-headline text-3xl">Your Poem</CardTitle>
-              <CardDescription>
-                A unique creation, just for you.
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={handleSave} disabled={!poem} aria-label="Save poem">
-                <Save className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleShare} disabled={!poem} aria-label="Share poem">
-                <Share2 className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleCopy} disabled={!poem} aria-label="Copy poem">
-                <Copy className="h-5 w-5" />
-              </Button>
-            </div>
-          </CardHeader>
-          <Separator />
-          <CardContent className="pt-6">
-            <div className="prose prose-lg text-foreground max-w-none min-h-[60vh]">
-              {isGenerating ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-5/6" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-1/2" />
-                  <div className="pt-4" />
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-4/6" />
+          <Card className="shadow-lg">
+            <form onSubmit={handleCustomize}>
+              <CardHeader>
+                <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                  <SlidersHorizontal className="h-6 w-6 text-primary" />
+                  Customize
+                </CardTitle>
+                <CardDescription>
+                  Refine the style, length, and tone of your poem.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="style">Style</Label>
+                  <Select value={customization.style} onValueChange={handleCustomizationChange('style')} name="style">
+                    <SelectTrigger id="style">
+                      <SelectValue placeholder="Select style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free_verse">Free Verse</SelectItem>
+                      <SelectItem value="shakespearean_sonnet">Shakespearean Sonnet</SelectItem>
+                      <SelectItem value="haiku">Haiku</SelectItem>
+                      <SelectItem value="limerick">Limerick</SelectItem>
+                      <SelectItem value="modernist">Modernist</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              ) : poem ? (
-                <p className="whitespace-pre-wrap font-body text-base leading-relaxed">{poem}</p>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                  <p className="font-headline text-xl">Your poem will appear here.</p>
-                  <p>Click "Generate Poem" to begin the magic.</p>
+                <div className="space-y-2">
+                  <Label htmlFor="length">Length</Label>
+                  <Select value={customization.length} onValueChange={handleCustomizationChange('length')} name="length">
+                    <SelectTrigger id="length">
+                      <SelectValue placeholder="Select length" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="short">Short</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="long">Long</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tone">Tone</Label>
+                  <Select value={customization.tone} onValueChange={handleCustomizationChange('tone')} name="tone">
+                    <SelectTrigger id="tone">
+                      <SelectValue placeholder="Select tone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reflective">Reflective</SelectItem>
+                      <SelectItem value="joyful">Joyful</SelectItem>
+                      <SelectItem value="melancholic">Melancholic</SelectItem>
+                      <SelectItem value="humorous">Humorous</SelectItem>
+                      <SelectItem value="romantic">Romantic</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={!poem || isCustomizing || isGenerating}
+                  variant="secondary"
+                >
+                  {isCustomizing ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  {isCustomizing ? 'Refining...' : 'Refine Poem'}
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        </aside>
+
+        <main className="lg:col-span-3">
+          <Card className="shadow-lg sticky top-8 min-h-[80vh]">
+            <CardHeader className="flex flex-row items-start justify-between">
+              <div>
+                <CardTitle className="font-headline text-3xl">Your Poem</CardTitle>
+                <CardDescription>
+                  A unique creation, just for you.
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={handleSave} disabled={!poem} aria-label="Save poem">
+                  <Save className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleShare} disabled={!poem} aria-label="Share poem">
+                  <Share2 className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleCopy} disabled={!poem} aria-label="Copy poem">
+                  <Copy className="h-5 w-5" />
+                </Button>
+              </div>
+            </CardHeader>
+            <Separator />
+            <CardContent className="pt-6">
+              <div className="prose prose-lg text-foreground max-w-none min-h-[60vh]">
+                {isGenerating ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-5/6" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-1/2" />
+                    <div className="pt-4" />
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-4/6" />
+                  </div>
+                ) : poem ? (
+                  <p className="whitespace-pre-wrap font-body text-base leading-relaxed">{poem}</p>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                    <p className="font-headline text-xl">Your poem will appear here.</p>
+                    <p>Click "Generate Poem" to begin the magic.</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+      <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Your Poem</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Label htmlFor="poem-title">Poem Title</Label>
+            <Input
+              id="poem-title"
+              value={poemTitle}
+              onChange={(e) => setPoemTitle(e.target.value)}
+              placeholder="Enter a title for your poem"
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={confirmSave}>Save Poem</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
+}

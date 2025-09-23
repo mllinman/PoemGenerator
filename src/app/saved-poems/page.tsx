@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { formatDistanceToNow } from 'date-fns';
-import { Loader2, Trash2, Download, X } from 'lucide-react';
+import { Loader2, Trash2, Download, X, Edit, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +32,7 @@ import { Separator } from '@/components/ui/separator';
 
 type SavedPoem = {
   id: string;
+  title: string;
   poem: string;
   imageDataUri: string;
   createdAt: string;
@@ -50,6 +52,8 @@ export default function SavedPoemsPage() {
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(frames[0].id);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [editingPoemId, setEditingPoemId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
   const { toast } = useToast();
   const printableRef = useRef<HTMLDivElement>(null);
 
@@ -74,6 +78,25 @@ export default function SavedPoemsPage() {
     toast({
       title: 'Poem Deleted',
       description: 'The poem has been removed from your collection.',
+    });
+  };
+
+  const handleRename = (poemId: string, currentTitle: string) => {
+    setEditingPoemId(poemId);
+    setEditingTitle(currentTitle);
+  };
+
+  const handleTitleChange = (poemId: string) => {
+    const updatedPoems = savedPoems.map((p) =>
+      p.id === poemId ? { ...p, title: editingTitle } : p
+    );
+    setSavedPoems(updatedPoems);
+    localStorage.setItem('savedPoems', JSON.stringify(updatedPoems));
+    setEditingPoemId(null);
+    setEditingTitle('');
+    toast({
+      title: 'Poem Renamed',
+      description: 'The poem title has been updated.',
     });
   };
 
@@ -137,6 +160,26 @@ export default function SavedPoemsPage() {
                       className="object-cover"
                     />
                   </div>
+                  {editingPoemId === poem.id ? (
+                    <div className="flex items-center gap-2 mb-2">
+                      <Input
+                        value={editingTitle}
+                        onChange={(e) => setEditingTitle(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleTitleChange(poem.id)}
+                        className="h-8"
+                      />
+                      <Button size="icon" className="h-8 w-8" onClick={() => handleTitleChange(poem.id)}>
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mb-2">
+                       <h3 className="font-headline text-xl flex-grow truncate">{poem.title}</h3>
+                       <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => handleRename(poem.id, poem.title)}>
+                          <Edit className="h-4 w-4" />
+                       </Button>
+                    </div>
+                  )}
                   <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-muted-foreground max-h-40 overflow-auto">
                     {poem.poem}
                   </p>
@@ -198,6 +241,7 @@ export default function SavedPoemsPage() {
                           className="object-cover"
                         />
                       </div>
+                      <h3 className="font-headline text-xl mb-4 text-center">{selectedPoem.title}</h3>
                       <p className="whitespace-pre-wrap font-body text-sm leading-relaxed">{selectedPoem.poem}</p>
                   </div>
                 </div>
@@ -238,4 +282,3 @@ export default function SavedPoemsPage() {
     </div>
   );
 }
-
