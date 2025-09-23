@@ -138,13 +138,23 @@ export default function SavedPoemsPage() {
     setIsPrinting(true);
     try {
       const canvas = await html2canvas(printableRef.current, {
-        scale: 2,
+        scale: 3, // Increased scale for better resolution on PDF
         useCORS: true,
         backgroundColor: null,
       });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'px', [canvas.width, canvas.height]);
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      
+      // Create a new jsPDF instance with 8x10 inch dimensions
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'in',
+        format: [8, 10]
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`poem-${selectedPoem.id}.pdf`);
     } catch (error) {
       console.error('Failed to generate PDF:', error);
@@ -267,8 +277,8 @@ export default function SavedPoemsPage() {
                   className={'bg-background p-4 rounded-lg overflow-hidden'
                   }
                 >
-                  <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground`}>
-                      <div className="w-full aspect-[3/4] relative mb-4">
+                  <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px]`}>
+                      <div className="w-full aspect-square relative mb-4">
                         <Image
                           src={selectedPoem.imageDataUri}
                           alt="Poem inspiration"
