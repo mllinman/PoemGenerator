@@ -12,6 +12,7 @@ import {
   SlidersHorizontal,
   Save,
   Download,
+  ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -76,8 +77,12 @@ export default function PoemGenerator() {
     tone: 'reflective',
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Save Dialog state
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [poemTitle, setPoemTitle] = useState('');
+  const [saveWithImage, setSaveWithImage] = useState(true);
+
   const { user } = useAuth();
   const router = useRouter();
 
@@ -85,7 +90,7 @@ export default function PoemGenerator() {
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(frames[0].id);
   const [isPrinting, setIsPrinting] = useState(false);
-  const [includeImage, setIncludeImage] = useState(true);
+  const [includeImageInPrint, setIncludeImageInPrint] = useState(true);
   const printableRef = useRef<HTMLDivElement>(null);
 
 
@@ -243,7 +248,7 @@ export default function PoemGenerator() {
       });
       return;
     }
-    
+    setSaveWithImage(true);
     setIsSaveDialogOpen(true);
   };
 
@@ -261,7 +266,7 @@ export default function PoemGenerator() {
       await savePoemToFirestore({
         title: poemTitle,
         poem,
-        imageDataUri,
+        imageDataUri: saveWithImage ? imageDataUri : '',
         createdAt: new Date().toISOString(),
       });
       toast({
@@ -326,7 +331,7 @@ export default function PoemGenerator() {
       });
       return;
     }
-    setIncludeImage(true);
+    setIncludeImageInPrint(true);
     setIsPrintDialogOpen(true);
   };
   
@@ -524,13 +529,23 @@ export default function PoemGenerator() {
             <DialogTitle>Save Your Poem</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <Label htmlFor="poem-title">Poem Title</Label>
-            <Input
-              id="poem-title"
-              value={poemTitle}
-              onChange={(e) => setPoemTitle(e.target.value)}
-              placeholder="Enter a title for your poem"
-            />
+            <div>
+                <Label htmlFor="poem-title">Poem Title</Label>
+                <Input
+                id="poem-title"
+                value={poemTitle}
+                onChange={(e) => setPoemTitle(e.target.value)}
+                placeholder="Enter a title for your poem"
+                />
+            </div>
+            <div className="flex items-center space-x-2">
+                <Checkbox
+                    id="save-with-image"
+                    checked={saveWithImage}
+                    onCheckedChange={(checked) => setSaveWithImage(Boolean(checked))}
+                />
+                <Label htmlFor="save-with-image">Include Image</Label>
+            </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
@@ -556,7 +571,7 @@ export default function PoemGenerator() {
                   }
                 >
                   <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px]`}>
-                      {includeImage && (
+                      {includeImageInPrint && (
                         <div className="w-full aspect-square relative mb-4">
                             <Image
                             src={imageDataUri}
@@ -603,8 +618,8 @@ export default function PoemGenerator() {
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="include-image-main"
-                                checked={includeImage}
-                                onCheckedChange={(checked) => setIncludeImage(Boolean(checked))}
+                                checked={includeImageInPrint}
+                                onCheckedChange={(checked) => setIncludeImageInPrint(Boolean(checked))}
                             />
                             <Label htmlFor="include-image-main">Include Image</Label>
                         </div>

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { formatDistanceToNow } from 'date-fns';
-import { Loader2, Trash2, Download, Edit, Check } from 'lucide-react';
+import { Loader2, Trash2, Download, Edit, Check, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -56,7 +56,7 @@ export default function SavedPoemsPage() {
   const [isPrinting, setIsPrinting] = useState(false);
   const [editingPoemId, setEditingPoemId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
-  const [includeImage, setIncludeImage] = useState(true);
+  const [includeImageInPrint, setIncludeImageInPrint] = useState(true);
   const { toast } = useToast();
   const printableRef = useRef<HTMLDivElement>(null);
   const { user, loading } = useAuth();
@@ -131,7 +131,7 @@ export default function SavedPoemsPage() {
 
   const openPrintDialog = (poem: SavedPoem) => {
     setSelectedPoem(poem);
-    setIncludeImage(true);
+    setIncludeImageInPrint(!!poem.imageDataUri);
     setIsPrintDialogOpen(true);
   };
 
@@ -200,13 +200,20 @@ export default function SavedPoemsPage() {
             {savedPoems.map((poem) => (
               <Card key={poem.id} className="shadow-lg flex flex-col">
                 <CardContent className="p-6 flex-grow">
-                  <div className="aspect-w-3 aspect-h-4 mb-4 relative overflow-hidden rounded-lg">
-                    <Image
-                      src={poem.imageDataUri}
-                      alt="Poem inspiration"
-                      layout="fill"
-                      className="object-cover"
-                    />
+                  <div className="aspect-w-4 aspect-h-3 mb-4 relative overflow-hidden rounded-lg bg-muted">
+                    {poem.imageDataUri ? (
+                        <Image
+                            src={poem.imageDataUri}
+                            alt="Poem inspiration"
+                            layout="fill"
+                            className="object-cover"
+                        />
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                            <ImageIcon className="h-12 w-12" />
+                            <p className="mt-2 text-sm">No image saved</p>
+                        </div>
+                    )}
                   </div>
                   {editingPoemId === poem.id ? (
                     <div className="flex items-center gap-2 mb-2">
@@ -281,7 +288,7 @@ export default function SavedPoemsPage() {
                   }
                 >
                   <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px]`}>
-                      {includeImage && (
+                      {includeImageInPrint && selectedPoem.imageDataUri && (
                         <div className="w-full aspect-square relative mb-4">
                           <Image
                             src={selectedPoem.imageDataUri}
@@ -318,11 +325,12 @@ export default function SavedPoemsPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                         <Checkbox
-                            id="include-image"
-                            checked={includeImage}
-                            onCheckedChange={(checked) => setIncludeImage(Boolean(checked))}
+                            id="include-image-print"
+                            checked={includeImageInPrint}
+                            onCheckedChange={(checked) => setIncludeImageInPrint(Boolean(checked))}
+                            disabled={!selectedPoem.imageDataUri}
                         />
-                        <Label htmlFor="include-image">Include Image</Label>
+                        <Label htmlFor="include-image-print">Include Image</Label>
                     </div>
                   </div>
                 </div>
