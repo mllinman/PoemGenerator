@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -6,7 +5,7 @@ import Image from 'next/image';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { formatDistanceToNow } from 'date-fns';
-import { Loader2, Trash2, Download, X, Edit, Check } from 'lucide-react';
+import { Loader2, Trash2, Download, Edit, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -29,14 +28,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/hooks/use-auth';
+import {
+  getSavedPoemsFromFirestore,
+  deletePoemFromFirestore,
+  updatePoemTitleInFirestore,
+  type Poem,
+} from '@/lib/firestore';
+import { useRouter } from 'next/navigation';
 
-type SavedPoem = {
-  id: string;
-  title: string;
-  poem: string;
-  imageDataUri: string;
-  createdAt: string;
-};
+type SavedPoem = Poem & { id: string };
 
 const frames = [
   { id: 'none', name: 'None', className: '' },
@@ -56,29 +57,48 @@ export default function SavedPoemsPage() {
   const [editingTitle, setEditingTitle] = useState('');
   const { toast } = useToast();
   const printableRef = useRef<HTMLDivElement>(null);
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    const fetchPoems = async () => {
+      try {
+        const poemsFromFirestore = await getSavedPoemsFromFirestore();
+        setSavedPoems(poemsFromFirestore as SavedPoem[]);
+      } catch (error) {
+        console.error('Failed to load saved poems:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not load your saved poems.',
+        });
+      }
+    };
+
+    fetchPoems();
+  }, [user, loading, router, toast]);
+
+  const handleDelete = async (poemId: string) => {
     try {
-      const poemsFromStorage = JSON.parse(localStorage.getItem('savedPoems') || '[]');
-      setSavedPoems(poemsFromStorage);
-    } catch (error) {
-      console.error('Failed to load saved poems:', error);
+      await deletePoemFromFirestore(poemId);
+      setSavedPoems(savedPoems.filter((p) => p.id !== poemId));
       toast({
+        title: 'Poem Deleted',
+        description: 'The poem has been removed from your collection.',
+      });
+    } catch (error) {
+       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Could not load your saved poems.',
+        description: 'Could not delete the poem.',
       });
     }
-  }, [toast]);
-
-  const handleDelete = (poemId: string) => {
-    const updatedPoems = savedPoems.filter((p) => p.id !== poemId);
-    setSavedPoems(updatedPoems);
-    localStorage.setItem('savedPoems', JSON.stringify(updatedPoems));
-    toast({
-      title: 'Poem Deleted',
-      description: 'The poem has been removed from your collection.',
-    });
   };
 
   const handleRename = (poemId: string, currentTitle: string) => {
@@ -86,18 +106,25 @@ export default function SavedPoemsPage() {
     setEditingTitle(currentTitle);
   };
 
-  const handleTitleChange = (poemId: string) => {
-    const updatedPoems = savedPoems.map((p) =>
-      p.id === poemId ? { ...p, title: editingTitle } : p
-    );
-    setSavedPoems(updatedPoems);
-    localStorage.setItem('savedPoems', JSON.stringify(updatedPoems));
-    setEditingPoemId(null);
-    setEditingTitle('');
-    toast({
-      title: 'Poem Renamed',
-      description: 'The poem title has been updated.',
-    });
+  const handleTitleChange = async (poemId: string) => {
+    try {
+        await updatePoemTitleInFirestore(poemId, editingTitle);
+        setSavedPoems(savedPoems.map((p) =>
+            p.id === poemId ? { ...p, title: editingTitle } : p
+        ));
+        setEditingPoemId(null);
+        setEditingTitle('');
+        toast({
+            title: 'Poem Renamed',
+            description: 'The poem title has been updated.',
+        });
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not rename the poem.',
+        });
+    }
   };
 
   const openPrintDialog = (poem: SavedPoem) => {
@@ -133,6 +160,14 @@ export default function SavedPoemsPage() {
   };
 
   const frameClassName = frames.find((f) => f.id === selectedFrame)?.className || '';
+
+  if (loading || !user) {
+    return (
+        <div className="flex justify-center items-center min-h-screen">
+            <Loader2 className="h-16 w-16 animate-spin" />
+        </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">

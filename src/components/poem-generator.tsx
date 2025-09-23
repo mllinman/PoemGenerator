@@ -41,6 +41,9 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import { useAuth } from '@/hooks/use-auth';
+import { savePoemToFirestore } from '@/lib/firestore';
+import { useRouter } from 'next/navigation';
 
 type CustomizationOptions = {
   style: string;
@@ -63,6 +66,8 @@ export default function PoemGenerator() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [poemTitle, setPoemTitle] = useState('');
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const defaultImage = PlaceHolderImages.find((img) => img.id === 'ashleigh');
@@ -197,6 +202,19 @@ export default function PoemGenerator() {
   };
 
   const handleSave = () => {
+    if (!user) {
+      toast({
+        title: 'Please Log In',
+        description: 'You need to be logged in to save poems.',
+        action: (
+            <Button onClick={() => router.push('/login')} variant="secondary">
+                Login
+            </Button>
+        )
+      });
+      return;
+    }
+
     if (!poem || !imageDataUri) {
       toast({
         variant: 'destructive',
@@ -209,7 +227,7 @@ export default function PoemGenerator() {
     setIsSaveDialogOpen(true);
   };
 
-  const confirmSave = () => {
+  const confirmSave = async () => {
     if (!poem || !imageDataUri || !poemTitle) {
       toast({
         variant: 'destructive',
@@ -220,19 +238,15 @@ export default function PoemGenerator() {
     }
 
     try {
-      const savedPoems = JSON.parse(localStorage.getItem('savedPoems') || '[]');
-      const newPoem = {
-        id: Date.now().toString(),
+      await savePoemToFirestore({
         title: poemTitle,
         poem,
         imageDataUri,
         createdAt: new Date().toISOString(),
-      };
-      savedPoems.unshift(newPoem);
-      localStorage.setItem('savedPoems', JSON.stringify(savedPoems));
+      });
       toast({
         title: 'Poem Saved',
-        description: 'Your poem has been saved successfully.',
+        description: 'Your poem has been saved to your account.',
       });
       setIsSaveDialogOpen(false);
       setPoemTitle('');
