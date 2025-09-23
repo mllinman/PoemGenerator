@@ -1,3 +1,5 @@
+"use client";
+
 import { PenLine, Bookmark, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './theme-toggle';
@@ -5,6 +7,12 @@ import { Button } from './ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export function Header() {
   const { user, loading } = useAuth();
@@ -80,11 +88,3 @@ export function Header() {
     </header>
   );
 }
-
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import React from 'react';
