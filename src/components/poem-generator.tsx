@@ -151,10 +151,11 @@ export default function PoemGenerator() {
     setIsCustomizing(false);
   };
 
-  const handleCustomizationChange = (field: keyof CustomizationOptions) => (value: string) => {
-    setCustomization(prev => ({ ...prev, [field]: value }));
-  };
-  
+  const handleCustomizationChange =
+    (field: keyof CustomizationOptions) => (value: string) => {
+      setCustomization((prev) => ({ ...prev, [field]: value }));
+    };
+
   const handleCopy = () => {
     if (!poem) return;
     navigator.clipboard.writeText(poem);
@@ -304,7 +305,7 @@ export default function PoemGenerator() {
                 <Select value={customization.length} onValueChange={handleCustomizationChange('length')} name="length">
                   <SelectTrigger id="length">
                     <SelectValue placeholder="Select length" />
-                  </Trigger>
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="short">Short</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
@@ -317,7 +318,7 @@ export default function PoemGenerator() {
                 <Select value={customization.tone} onValueChange={handleCustomizationChange('tone')} name="tone">
                   <SelectTrigger id="tone">
                     <SelectValue placeholder="Select tone" />
-                  </Trigger>
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="reflective">Reflective</SelectItem>
                     <SelectItem value="joyful">Joyful</SelectItem>
@@ -395,4 +396,3 @@ export default function PoemGenerator() {
       </main>
     </div>
   );
-}
