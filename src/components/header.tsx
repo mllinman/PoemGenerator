@@ -1,5 +1,7 @@
-import { PenLine } from 'lucide-react';
+import { PenLine, Bookmark } from 'lucide-react';
+import Link from 'next/link';
 import { ThemeToggle } from './theme-toggle';
+import { Button } from './ui/button';
 
 export function Header() {
   return (
@@ -13,9 +15,31 @@ export function Header() {
       <p className="mt-4 max-w-2xl mx-auto text-center text-lg text-muted-foreground">
         Inspired by Ashleigh, this app transforms your images into beautiful, descriptive poetry.
       </p>
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button asChild variant="ghost" size="icon">
+                <Link href="/saved-poems">
+                  <Bookmark />
+                  <span className="sr-only">Saved Poems</span>
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Saved Poems</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <ThemeToggle />
       </div>
     </header>
   );
 }
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';

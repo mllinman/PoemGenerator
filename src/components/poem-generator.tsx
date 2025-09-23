@@ -8,6 +8,7 @@ import {
   Loader2,
   Share2,
   SlidersHorizontal,
+  Save,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -176,6 +177,41 @@ export default function PoemGenerator() {
     }
   };
 
+  const handleSave = () => {
+    if (!poem || !imageDataUri) {
+      toast({
+        variant: 'destructive',
+        title: 'Cannot Save',
+        description: 'You must have an image and a poem to save.',
+      });
+      return;
+    }
+
+    try {
+      const savedPoems = JSON.parse(localStorage.getItem('savedPoems') || '[]');
+      const newPoem = {
+        id: Date.now().toString(),
+        poem,
+        imageDataUri,
+        createdAt: new Date().toISOString(),
+      };
+      savedPoems.unshift(newPoem);
+      localStorage.setItem('savedPoems', JSON.stringify(savedPoems));
+      toast({
+        title: 'Poem Saved',
+        description: 'Your poem has been saved successfully.',
+      });
+    } catch (error) {
+      console.error('Failed to save poem:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not save your poem.',
+      });
+    }
+  };
+
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
       <aside className="lg:col-span-2 space-y-8">
@@ -268,7 +304,7 @@ export default function PoemGenerator() {
                 <Select value={customization.length} onValueChange={handleCustomizationChange('length')} name="length">
                   <SelectTrigger id="length">
                     <SelectValue placeholder="Select length" />
-                  </SelectTrigger>
+                  </Trigger>
                   <SelectContent>
                     <SelectItem value="short">Short</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
@@ -281,7 +317,7 @@ export default function PoemGenerator() {
                 <Select value={customization.tone} onValueChange={handleCustomizationChange('tone')} name="tone">
                   <SelectTrigger id="tone">
                     <SelectValue placeholder="Select tone" />
-                  </SelectTrigger>
+                  </Trigger>
                   <SelectContent>
                     <SelectItem value="reflective">Reflective</SelectItem>
                     <SelectItem value="joyful">Joyful</SelectItem>
@@ -319,6 +355,9 @@ export default function PoemGenerator() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={handleSave} disabled={!poem} aria-label="Save poem">
+                <Save className="h-5 w-5" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={handleShare} disabled={!poem} aria-label="Share poem">
                 <Share2 className="h-5 w-5" />
               </Button>
