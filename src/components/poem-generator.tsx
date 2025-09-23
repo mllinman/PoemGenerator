@@ -179,11 +179,17 @@ export default function PoemGenerator() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'A Poem from Muse\'s Quill',
+          title: "A Poem from Muse's Quill",
           text: poem,
         });
       } catch (error) {
         console.error('Error sharing:', error);
+        // Fallback to copy
+        handleCopy();
+        toast({
+          title: 'Sharing failed',
+          description: 'The poem has been copied to your clipboard instead.',
+        });
       }
     } else {
       handleCopy();
