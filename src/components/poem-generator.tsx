@@ -47,6 +47,7 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import { savePoemToFirestore } from '@/lib/firestore';
 import { useRouter } from 'next/navigation';
+import { Checkbox } from './ui/checkbox';
 
 type CustomizationOptions = {
   style: string;
@@ -84,6 +85,7 @@ export default function PoemGenerator() {
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(frames[0].id);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [includeImage, setIncludeImage] = useState(true);
   const printableRef = useRef<HTMLDivElement>(null);
 
 
@@ -324,6 +326,7 @@ export default function PoemGenerator() {
       });
       return;
     }
+    setIncludeImage(true);
     setIsPrintDialogOpen(true);
   };
   
@@ -553,45 +556,59 @@ export default function PoemGenerator() {
                   }
                 >
                   <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px]`}>
-                      <div className="w-full aspect-square relative mb-4">
-                        <Image
-                          src={imageDataUri}
-                          alt="Poem inspiration"
-                          layout="fill"
-                          className="object-cover"
-                        />
-                      </div>
+                      {includeImage && (
+                        <div className="w-full aspect-square relative mb-4">
+                            <Image
+                            src={imageDataUri}
+                            alt="Poem inspiration"
+                            layout="fill"
+                            className="object-cover"
+                            />
+                        </div>
+                      )}
                       <h3 className="font-headline text-xl mb-4 text-center">{poemTitle}</h3>
                       <p className="whitespace-pre-wrap font-body text-sm leading-relaxed">{poem}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="font-headline text-lg">Customization</h3>
+              <div className="space-y-8">
                 <div>
-                  <Label htmlFor="frame-select">Choose a Frame</Label>
-                  <Select value={selectedFrame} onValueChange={setSelectedFrame}>
-                    <SelectTrigger id="frame-select">
-                      <SelectValue placeholder="Select a frame" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {frames.map((frame) => (
-                        <SelectItem key={frame.id} value={frame.id}>
-                          {frame.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="print-title">Poem Title</Label>
-                  <Input
-                    id="print-title"
-                    value={poemTitle}
-                    onChange={(e) => setPoemTitle(e.target.value)}
-                    placeholder="Enter a title for your poem"
-                  />
+                    <h3 className="font-headline text-lg mb-4">Customization</h3>
+                    <div className="space-y-4">
+                        <div>
+                        <Label htmlFor="frame-select">Choose a Frame</Label>
+                        <Select value={selectedFrame} onValueChange={setSelectedFrame}>
+                            <SelectTrigger id="frame-select">
+                            <SelectValue placeholder="Select a frame" />
+                            </SelectTrigger>
+                            <SelectContent>
+                            {frames.map((frame) => (
+                                <SelectItem key={frame.id} value={frame.id}>
+                                {frame.name}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="print-title">Poem Title</Label>
+                        <Input
+                            id="print-title"
+                            value={poemTitle}
+                            onChange={(e) => setPoemTitle(e.target.value)}
+                            placeholder="Enter a title for your poem"
+                        />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox
+                                id="include-image-main"
+                                checked={includeImage}
+                                onCheckedChange={(checked) => setIncludeImage(Boolean(checked))}
+                            />
+                            <Label htmlFor="include-image-main">Include Image</Label>
+                        </div>
+                    </div>
                 </div>
               </div>
             </div>
