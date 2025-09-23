@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import {
   Copy,
   ImageUp,
@@ -9,6 +11,7 @@ import {
   Share2,
   SlidersHorizontal,
   Save,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -51,6 +54,14 @@ type CustomizationOptions = {
   tone: string;
 };
 
+const frames = [
+  { id: 'none', name: 'None', className: '' },
+  { id: 'simple-black', name: 'Simple Black', className: 'border-8 border-black' },
+  { id: 'wood', name: 'Wooden Frame', className: 'border-12 border-yellow-800 bg-yellow-950 p-2 shadow-inner' },
+  { id: 'gilt', name: 'Gilded Frame', className: 'border-16 border-yellow-600 bg-yellow-700 p-4' },
+  { id: 'modern', name: 'Modern', className: 'border-2 border-gray-300 p-1 bg-white' },
+];
+
 export default function PoemGenerator() {
   const { toast } = useToast();
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -68,6 +79,13 @@ export default function PoemGenerator() {
   const [poemTitle, setPoemTitle] = useState('');
   const { user } = useAuth();
   const router = useRouter();
+
+  // Print Dialog state
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [selectedFrame, setSelectedFrame] = useState(frames[0].id);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const printableRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const defaultImage = PlaceHolderImages.find((img) => img.id === 'ashleigh');
@@ -260,6 +278,46 @@ export default function PoemGenerator() {
     }
   };
 
+  const handlePrint = async () => {
+    if (!printableRef.current) return;
+
+    setIsPrinting(true);
+    try {
+      const canvas = await html2canvas(printableRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'px', [canvas.width, canvas.height]);
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`poem-for-ashleigh.pdf`);
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      toast({
+        variant: 'destructive',
+        title: 'PDF Generation Failed',
+        description: 'An unexpected error occurred while creating the PDF.',
+      });
+    } finally {
+      setIsPrinting(false);
+      setIsPrintDialogOpen(false);
+    }
+  };
+
+  const openPrintDialog = () => {
+    if (!poem || !imageDataUri) {
+      toast({
+        variant: 'destructive',
+        title: 'Cannot Print',
+        description: 'You must have an image and a poem to print.',
+      });
+      return;
+    }
+    setIsPrintDialogOpen(true);
+  };
+  
+  const frameClassName = frames.find((f) => f.id === selectedFrame)?.className || '';
 
   return (
     <>
@@ -408,6 +466,9 @@ export default function PoemGenerator() {
                 <Button variant="ghost" size="icon" onClick={handleSave} disabled={!poem} aria-label="Save poem">
                   <Save className="h-5 w-5" />
                 </Button>
+                <Button variant="ghost" size="icon" onClick={openPrintDialog} disabled={!poem} aria-label="Print poem">
+                  <Download className="h-5 w-5" />
+                </Button>
                 <Button variant="ghost" size="icon" onClick={handleShare} disabled={!poem} aria-label="Share poem">
                   <Share2 className="h-5 w-5" />
                 </Button>
@@ -466,6 +527,77 @@ export default function PoemGenerator() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {poem && imageDataUri && (
+        <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Create a Printable Poem</DialogTitle>
+            </DialogHeader>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
+              <div className="space-y-4">
+                <h3 className="font-headline text-lg">Preview</h3>
+                <div
+                  className={'bg-background p-4 rounded-lg overflow-hidden'
+                  }
+                >
+                  <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground`}>
+                      <div className="w-full aspect-[3/4] relative mb-4">
+                        <Image
+                          src={imageDataUri}
+                          alt="Poem inspiration"
+                          layout="fill"
+                          className="object-cover"
+                        />
+                      </div>
+                      <h3 className="font-headline text-xl mb-4 text-center">{poemTitle}</h3>
+                      <p className="whitespace-pre-wrap font-body text-sm leading-relaxed">{poem}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-headline text-lg">Customization</h3>
+                <div>
+                  <Label htmlFor="frame-select">Choose a Frame</Label>
+                  <Select value={selectedFrame} onValueChange={setSelectedFrame}>
+                    <SelectTrigger id="frame-select">
+                      <SelectValue placeholder="Select a frame" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {frames.map((frame) => (
+                        <SelectItem key={frame.id} value={frame.id}>
+                          {frame.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="print-title">Poem Title</Label>
+                  <Input
+                    id="print-title"
+                    value={poemTitle}
+                    onChange={(e) => setPoemTitle(e.target.value)}
+                    placeholder="Enter a title for your poem"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button onClick={handlePrint} disabled={isPrinting}>
+                {isPrinting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isPrinting ? 'Generating PDF...' : 'Download PDF'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }
