@@ -35,6 +35,14 @@ const generatePoemPrompt = ai.definePrompt({
   name: 'generatePoemPrompt',
   input: {schema: GeneratePoemFromImageInputSchema},
   output: {schema: GeneratePoemFromImageOutputSchema},
+  config: {
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_NONE',
+      },
+    ],
+  },
   prompt: `You are a skilled poet who can create poems based on images.
 
   Analyze the image provided and write a poem based on its visual elements, mood, and overall impression.
