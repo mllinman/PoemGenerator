@@ -48,11 +48,13 @@ import { useAuth } from '@/hooks/use-auth';
 import { savePoemToFirestore } from '@/lib/firestore';
 import { useRouter } from 'next/navigation';
 import { Checkbox } from './ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 type CustomizationOptions = {
   style: string;
   length: string;
   tone: string;
+  formatting: string;
 };
 
 const frames = [
@@ -77,6 +79,7 @@ export default function PoemGenerator() {
     style: 'free_verse',
     length: 'medium',
     tone: 'reflective',
+    formatting: 'standard',
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -455,6 +458,27 @@ export default function PoemGenerator() {
                       <SelectItem value="romantic">Romantic</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Formatting</Label>
+                  <RadioGroup
+                    value={customization.formatting}
+                    onValueChange={handleCustomizationChange('formatting')}
+                    className="flex space-x-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="compact" id="compact" />
+                      <Label htmlFor="compact">Compact</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="standard" id="standard" />
+                      <Label htmlFor="standard">Standard</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="spaced_out" id="spaced_out" />
+                      <Label htmlFor="spaced_out">Spaced Out</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
               </CardContent>
               <CardFooter>

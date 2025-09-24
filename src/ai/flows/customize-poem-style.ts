@@ -20,6 +20,7 @@ const CustomizePoemStyleInputSchema = z.object({
   style: z.string().optional().describe('The desired style of the poem (e.g., Shakespearean, modern, free verse).'),
   length: z.string().optional().describe('The desired length of the poem (e.g., short, medium, long).'),
   tone: z.string().optional().describe('The desired tone of the poem (e.g., happy, sad, reflective).'),
+  formatting: z.string().optional().describe('The desired formatting of the poem (e.g., compact, standard, spaced out).'),
 });
 
 export type CustomizePoemStyleInput = z.infer<typeof CustomizePoemStyleInputSchema>;
@@ -48,8 +49,9 @@ Original Poem: {{{originalPoem}}}
 Style: {{{style}}}
 Length: {{{length}}}
 Tone: {{{tone}}}
+Formatting: {{{formatting}}}
 
-Please generate a new poem that incorporates the user's customization requests.`, 
+Please generate a new poem that incorporates the user's customization requests. If the user requests 'compact' formatting, reduce the line breaks between stanzas. If they request 'spaced out', add extra line breaks. For 'standard', use a single blank line between stanzas.`, 
 });
 
 // Define the Genkit flow for customizing the poem style.
