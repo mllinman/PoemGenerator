@@ -12,7 +12,6 @@ import {
   SlidersHorizontal,
   Save,
   Download,
-  ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -57,11 +56,14 @@ type CustomizationOptions = {
 };
 
 const frames = [
-  { id: 'none', name: 'None', className: '' },
-  { id: 'simple-black', name: 'Simple Black', className: 'border-8 border-black' },
-  { id: 'wood', name: 'Wooden Frame', className: 'border-12 border-yellow-800 bg-yellow-950 p-2 shadow-inner' },
-  { id: 'gilt', name: 'Gilded Frame', className: 'border-16 border-yellow-600 bg-yellow-700 p-4' },
-  { id: 'modern', name: 'Modern', className: 'border-2 border-gray-300 p-1 bg-white' },
+  { id: 'none', name: 'None', className: '', textClassName: '' },
+  { id: 'simple-black', name: 'Simple Black', className: 'p-2 bg-black', textClassName: '' },
+  { id: 'wood', name: 'Wooden Frame', className: 'border-[16px] border-yellow-800 bg-yellow-950 p-4 shadow-inner', textClassName: '' },
+  { id: 'gilt', name: 'Gilded Frame', className: 'border-[20px] border-yellow-500 bg-yellow-700 p-4 shadow-xl', textClassName: '' },
+  { id: 'modern', name: 'Modern', className: 'border-2 border-gray-300 p-1 bg-white', textClassName: 'text-black' },
+  { id: 'barnwood', name: 'Barnwood', className: 'border-[24px] border-amber-900/80 bg-amber-950 p-4 shadow-lg', textClassName: '' },
+  { id: 'silver', name: 'Elegant Silver', className: 'border-[12px] border-gray-400 bg-gray-200 p-4 shadow-lg', textClassName: 'text-black' },
+  { id: 'gallery', name: 'Gallery', className: 'p-8 bg-white', textClassName: 'text-black' }
 ];
 
 export default function PoemGenerator() {
@@ -336,6 +338,7 @@ export default function PoemGenerator() {
   };
   
   const frameClassName = frames.find((f) => f.id === selectedFrame)?.className || '';
+  const frameTextClassName = frames.find((f) => f.id === selectedFrame)?.textClassName || '';
 
   return (
     <>
@@ -570,7 +573,7 @@ export default function PoemGenerator() {
                   className={'bg-background p-4 rounded-lg overflow-hidden'
                   }
                 >
-                  <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px]`}>
+                  <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px] flex flex-col`}>
                       {includeImageInPrint && (
                         <div className="w-full aspect-square relative mb-4">
                             <Image
@@ -581,8 +584,10 @@ export default function PoemGenerator() {
                             />
                         </div>
                       )}
-                      <h3 className="font-headline text-xl mb-4 text-center">{poemTitle}</h3>
-                      <p className="whitespace-pre-wrap font-body text-sm leading-relaxed">{poem}</p>
+                      <div className={`flex-grow flex flex-col justify-center ${frameTextClassName}`}>
+                        <h3 className="font-headline text-xl mb-4 text-center">{poemTitle}</h3>
+                        <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{poem}</p>
+                      </div>
                   </div>
                 </div>
               </div>
