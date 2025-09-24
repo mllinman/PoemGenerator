@@ -7,6 +7,8 @@ const firebaseConfig = {
   appId: "1:251750681972:web:e4937b9101dbf0dfdef021",
   apiKey: "AIzaSyCVUtAywMjPtvBuRBwkds3-iGv8lr1yU74",
   authDomain: "studio-3769717297-cfea7.firebaseapp.com",
+  measurementId: "",
+  messagingSenderId: "251750681972"
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();

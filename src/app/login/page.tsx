@@ -62,32 +62,52 @@ export default function LoginPage() {
     setIsLoading(false);
   };
   
-  const handleGuestSignIn = async () => {
+  const handleTestUserSignIn = async (userType: 'guest' | 'admin') => {
     setIsLoading(true);
-    const testEmail = 'test@example.com';
-    const testPassword = 'password';
+    const isGuest = userType === 'guest';
+    const testEmail = isGuest ? 'test@example.com' : 'admin@example.com';
+    const testPassword = isGuest ? 'password' : 'adminpassword';
+    const title = isGuest ? 'Guest' : 'Admin';
+
     try {
-      // First, try to sign in
       await signInWithEmail(testEmail, testPassword);
       router.push('/saved-poems');
     } catch (error: any) {
-      // If user not found, create the user, then sign in again.
+      // If user not found or invalid credentials for a new test user, create the user, then sign in again.
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
         try {
+          // Attempt to sign up first.
           await signUpWithEmail(testEmail, testPassword);
+          // Then sign in after successful sign up.
           await signInWithEmail(testEmail, testPassword);
           router.push('/saved-poems');
         } catch (signupError: any) {
-          toast({
-            variant: 'destructive',
-            title: 'Guest Sign-in Failed',
-            description: "Could not create a guest account. " + signupError.message,
-          });
+          // Handle cases where sign-up fails (e.g., email already exists but with different credentials)
+           if (signupError.code !== 'auth/email-already-in-use') {
+             toast({
+              variant: 'destructive',
+              title: `${title} Sign-in Failed`,
+              description: `Could not create a ${userType} account. ${signupError.message}`,
+            });
+           } else {
+            // If email exists, it means we can just sign in.
+            try {
+                await signInWithEmail(testEmail, testPassword);
+                router.push('/saved-poems');
+            } catch (finalSignInError: any) {
+                 toast({
+                    variant: 'destructive',
+                    title: `${title} Sign-in Failed`,
+                    description: finalSignInError.message,
+                });
+            }
+           }
         }
       } else {
+        // Handle other sign-in errors
         toast({
           variant: 'destructive',
-          title: 'Guest Sign-in Failed',
+          title: `${title} Sign-in Failed`,
           description: error.message,
         });
       }
@@ -95,36 +115,6 @@ export default function LoginPage() {
     setIsLoading(false);
   };
 
-  const handleAdminSignIn = async () => {
-    setIsLoading(true);
-    const adminEmail = 'admin@example.com';
-    const adminPassword = 'adminpassword';
-    try {
-      await signInWithEmail(adminEmail, adminPassword);
-      router.push('/saved-poems');
-    } catch (error: any) {
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-        try {
-          await signUpWithEmail(adminEmail, adminPassword);
-          await signInWithEmail(adminEmail, adminPassword);
-          router.push('/saved-poems');
-        } catch (signupError: any) {
-          toast({
-            variant: 'destructive',
-            title: 'Admin Sign-in Failed',
-            description: "Could not create an admin account. " + signupError.message,
-          });
-        }
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Admin Sign-in Failed',
-          description: error.message,
-        });
-      }
-    }
-    setIsLoading(false);
-  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -146,7 +136,7 @@ export default function LoginPage() {
                 <Button
                     variant="secondary"
                     className="w-full"
-                    onClick={handleGuestSignIn}
+                    onClick={() => handleTestUserSignIn('guest')}
                     disabled={isLoading}
                 >
                     <UserCheck className="mr-2 h-4 w-4" />
@@ -155,7 +145,7 @@ export default function LoginPage() {
                 <Button
                     variant="secondary"
                     className="w-full"
-                    onClick={handleAdminSignIn}
+                    onClick={() => handleTestUserSignIn('admin')}
                     disabled={isLoading}
                 >
                     <ShieldCheck className="mr-2 h-4 w-4" />
