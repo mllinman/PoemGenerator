@@ -47,7 +47,7 @@ const generatePoemPrompt = ai.definePrompt({
 
   Analyze the image provided and write a poem based on its visual elements, mood, and overall impression.
   
-  IMPORTANT: The poem must be broken into stanzas. Stanzas should be separated by a single blank line. Ensure proper punctuation, with a single space after commas and periods.
+  IMPORTANT: The poem must be broken into stanzas. Stanzas should be separated by a single blank line. Ensure proper punctuation, with a single space after commas and periods. The poem must be complete and finished.
 
   Image: {{media url=photoDataUri}}
 
@@ -55,7 +55,7 @@ const generatePoemPrompt = ai.definePrompt({
   {{~#if length}}Length: {{{length}}}{{/if}}
   {{~#if tone}}Tone: {{{tone}}}{{/if}}
 
-  Write a poem.`,
+  Write a complete poem.`,
 });
 
 const generatePoemFromImageFlow = ai.defineFlow(
