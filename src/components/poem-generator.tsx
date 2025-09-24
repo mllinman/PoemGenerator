@@ -70,6 +70,13 @@ const frames = [
   { id: 'gallery', name: 'Gallery', className: 'p-8 bg-white', textClassName: 'text-black' }
 ];
 
+const fonts = [
+  { id: 'playfair', name: 'Playfair Display', className: 'font-headline' },
+  { id: 'pt_sans', name: 'PT Sans', className: 'font-body' },
+  { id: 'dancing_script', name: 'Dancing Script', className: '[&_p]:font-dancing-script' },
+  { id: 'courier_prime', name: 'Courier Prime', className: '[&_p]:font-courier-prime' },
+];
+
 export default function PoemGenerator() {
   const { toast } = useToast();
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -101,6 +108,9 @@ export default function PoemGenerator() {
   const [isPrinting, setIsPrinting] = useState(false);
   const [includeImageInPrint, setIncludeImageInPrint] = useState(true);
   const printableRef = useRef<HTMLDivElement>(null);
+  const [selectedFont, setSelectedFont] = useState(fonts[0].id);
+  const [fontColor, setFontColor] = useState('#000000');
+  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
 
 
   useEffect(() => {
@@ -340,12 +350,17 @@ export default function PoemGenerator() {
       });
       return;
     }
+    const frame = frames.find(f => f.id === selectedFrame) || frames[0];
+    const defaultFontColor = frame.textClassName.includes('text-black') ? '#000000' : '#FFFFFF';
+    const defaultBgColor = frame.className.includes('bg-white') ? '#FFFFFF' : '#1a202c';
+    setFontColor(defaultFontColor);
+    setBackgroundColor(defaultBgColor);
     setIncludeImageInPrint(true);
     setIsPrintDialogOpen(true);
   };
   
   const frameClassName = frames.find((f) => f.id === selectedFrame)?.className || '';
-  const frameTextClassName = frames.find((f) => f.id === selectedFrame)?.textClassName || '';
+  const fontClassName = fonts.find((f) => f.id === selectedFont)?.className || '';
 
   const displayPoem = useMemo(() => {
     if (!poem) return null;
@@ -653,7 +668,11 @@ export default function PoemGenerator() {
                   className={'bg-background p-4 rounded-lg overflow-hidden'
                   }
                 >
-                  <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px] flex flex-col`}>
+                  <div 
+                    ref={printableRef} 
+                    className={`p-4 ${frameClassName} aspect-[4/5] w-[400px] flex flex-col ${fontClassName}`}
+                    style={{ backgroundColor: backgroundColor, color: fontColor }}
+                  >
                       {includeImageInPrint && (
                         <div className="w-full h-[40%] relative mb-4">
                             <Image
@@ -664,7 +683,7 @@ export default function PoemGenerator() {
                             />
                         </div>
                       )}
-                      <div className={`flex-grow flex flex-col justify-center overflow-hidden ${frameTextClassName}`}>
+                      <div className={`flex-grow flex flex-col justify-center overflow-hidden`}>
                         <h3 className="font-headline text-xl mb-4 text-center flex-shrink-0">{poemTitle}</h3>
                          <div className="overflow-y-auto">
                            <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{displayPoem}</p>
@@ -678,21 +697,6 @@ export default function PoemGenerator() {
                 <div>
                     <h3 className="font-headline text-lg mb-4">Customization</h3>
                     <div className="space-y-4">
-                        <div>
-                        <Label htmlFor="frame-select">Choose a Frame</Label>
-                        <Select value={selectedFrame} onValueChange={setSelectedFrame}>
-                            <SelectTrigger id="frame-select">
-                            <SelectValue placeholder="Select a frame" />
-                            </SelectTrigger>
-                            <SelectContent>
-                            {frames.map((frame) => (
-                                <SelectItem key={frame.id} value={frame.id}>
-                                {frame.name}
-                                </SelectItem>
-                            ))}
-                            </SelectContent>
-                        </Select>
-                        </div>
                         <div className="space-y-2">
                         <Label htmlFor="print-title">Poem Title</Label>
                         <Input
@@ -701,6 +705,58 @@ export default function PoemGenerator() {
                             onChange={(e) => setPoemTitle(e.target.value)}
                             placeholder="Enter a title for your poem"
                         />
+                        </div>
+                        <div>
+                          <Label htmlFor="frame-select">Choose a Frame</Label>
+                          <Select value={selectedFrame} onValueChange={setSelectedFrame}>
+                              <SelectTrigger id="frame-select">
+                              <SelectValue placeholder="Select a frame" />
+                              </SelectTrigger>
+                              <SelectContent>
+                              {frames.map((frame) => (
+                                  <SelectItem key={frame.id} value={frame.id}>
+                                  {frame.name}
+                                  </SelectItem>
+                              ))}
+                              </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="font-select">Choose a Font</Label>
+                          <Select value={selectedFont} onValueChange={setSelectedFont}>
+                            <SelectTrigger id="font-select">
+                              <SelectValue placeholder="Select a font" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {fonts.map((font) => (
+                                <SelectItem key={font.id} value={font.id}>
+                                  {font.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex gap-4">
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="font-color">Font Color</Label>
+                            <Input
+                              id="font-color"
+                              type="color"
+                              value={fontColor}
+                              onChange={(e) => setFontColor(e.target.value)}
+                              className="p-1 h-10"
+                            />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="bg-color">Background Color</Label>
+                            <Input
+                              id="bg-color"
+                              type="color"
+                              value={backgroundColor}
+                              onChange={(e) => setBackgroundColor(e.target.value)}
+                              className="p-1 h-10"
+                            />
+                          </div>
                         </div>
                         <div className="flex items-center space-x-2">
                             <Checkbox

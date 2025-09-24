@@ -19,6 +19,8 @@ export default {
       fontFamily: {
         body: ['PT Sans', 'sans-serif'],
         headline: ['Playfair Display', 'serif'],
+        'dancing-script': ['Dancing Script', 'cursive'],
+        'courier-prime': ['Courier Prime', 'monospace'],
         code: ['monospace'],
       },
       colors: {
