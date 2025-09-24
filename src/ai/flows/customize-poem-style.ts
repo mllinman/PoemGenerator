@@ -67,7 +67,7 @@ Customization Instructions:
 - Length: {{{length}}}
 {{~/if}}
 {{~#if tone}}
-- Tone: {{{tone}}}
+- Tone: {{{tone}}}{{#if (eq tone 'humorous')}} (Be witty, clever, and genuinely funny. Use techniques like wordplay, exaggeration, or unexpected turns to create an amusing poem.){{/if}}
 {{~/if}}
 {{~#if rhymeScheme}}
 - Rhyme Scheme: {{{rhymeScheme}}}
