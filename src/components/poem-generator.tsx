@@ -221,10 +221,6 @@ export default function PoemGenerator() {
         console.error('Error sharing:', error);
         // Fallback to copy
         handleCopy();
-        toast({
-          title: 'Sharing failed',
-          description: 'The poem has been copied to your clipboard instead.',
-        });
       }
     } else {
       handleCopy();
@@ -349,7 +345,7 @@ export default function PoemGenerator() {
       case 'compact':
         return poem.replace(/\n\n/g, '\n');
       case 'spaced_out':
-        return poem.replace(/\n\n/g, '\n\n\n\n');
+        return poem.replace(/\n\n/g, '\n\n\n');
       case 'standard':
       default:
         return poem;
@@ -586,6 +582,11 @@ export default function PoemGenerator() {
                     onCheckedChange={(checked) => setSaveWithImage(Boolean(checked))}
                 />
                 <Label htmlFor="save-with-image">Include Image</Label>
+            </div>
+            <div className="max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
+                <p className="whitespace-pre-wrap font-body text-sm text-muted-foreground">
+                    {formattedPoem}
+                </p>
             </div>
           </div>
           <DialogFooter>

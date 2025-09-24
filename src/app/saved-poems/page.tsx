@@ -180,7 +180,7 @@ export default function SavedPoemsPage() {
   
   const formattedPoem = useMemo(() => {
     if (!selectedPoem) return null;
-    return selectedPoem.poem;
+    return selectedPoem.poem.replace(/\n\n/g, '\n\n');
   }, [selectedPoem]);
 
 
@@ -310,7 +310,9 @@ export default function SavedPoemsPage() {
                       )}
                       <div className={`flex-grow flex flex-col justify-center ${frameTextClassName}`}>
                         <h3 className="font-headline text-xl mb-4 text-center">{selectedPoem.title}</h3>
-                        <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{formattedPoem}</p>
+                        <div className="max-h-60 overflow-y-auto">
+                            <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{formattedPoem}</p>
+                        </div>
                       </div>
                   </div>
                 </div>
