@@ -50,6 +50,10 @@ const customizePoemStylePrompt = ai.definePrompt({
         category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
         threshold: 'BLOCK_NONE',
       },
+      {
+        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+        threshold: 'BLOCK_ONLY_HIGH'
+      }
     ],
   },
   prompt: `You are an expert poet and editor. You will be given a poem and instructions on how to customize it.
@@ -67,7 +71,7 @@ Customization Instructions:
 - Length: {{{length}}}
 {{~/if}}
 {{~#if tone}}
-- Tone: {{{tone}}}{{#if (eq tone 'humorous')}} (Be witty, clever, and genuinely funny. Use techniques like wordplay, exaggeration, or unexpected turns to create an amusing poem.){{/if}}
+- Tone: {{{tone}}}{{#if (eq tone 'humorous')}} (Be witty, clever, and genuinely funny. Use techniques like wordplay, exaggeration, or unexpected turns to create an amusing poem.){{/if}}{{#if (eq tone 'romantic')}} (The poem should be passionate, sensual, and intimate, exploring desire and connection in a mature, artful way. It should push the boundaries of sexuality without being crude or perverse.){{/if}}
 {{~/if}}
 {{~#if rhymeScheme}}
 - Rhyme Scheme: {{{rhymeScheme}}}
