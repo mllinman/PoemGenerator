@@ -402,7 +402,7 @@ export default function PoemGenerator() {
                     src={imagePreviewUrl}
                     alt="Poem inspiration"
                     fill
-                    className="object-cover"
+                    className="object-contain"
                     data-ai-hint="woman portrait"
                   />
                 ) : (
@@ -679,7 +679,7 @@ export default function PoemGenerator() {
                             src={imageDataUri}
                             alt="Poem inspiration"
                             layout="fill"
-                            className="object-cover"
+                            className="object-contain"
                             />
                         </div>
                       )}

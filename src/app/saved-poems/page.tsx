@@ -232,7 +232,7 @@ export default function SavedPoemsPage() {
                             src={poem.imageDataUri}
                             alt="Poem inspiration"
                             layout="fill"
-                            className="object-cover"
+                            className="object-contain"
                         />
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
@@ -324,7 +324,7 @@ export default function SavedPoemsPage() {
                             src={selectedPoem.imageDataUri}
                             alt="Poem inspiration"
                             layout="fill"
-                            className="object-cover"
+                            className="object-contain"
                           />
                         </div>
                       )}
