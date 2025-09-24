@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -343,6 +343,20 @@ export default function PoemGenerator() {
   const frameClassName = frames.find((f) => f.id === selectedFrame)?.className || '';
   const frameTextClassName = frames.find((f) => f.id === selectedFrame)?.textClassName || '';
 
+  const formattedPoem = useMemo(() => {
+    if (!poem) return null;
+    switch (customization.formatting) {
+      case 'compact':
+        return poem.replace(/\n\n/g, '\n');
+      case 'spaced_out':
+        return poem.replace(/\n\n/g, '\n\n\n\n');
+      case 'standard':
+      default:
+        return poem;
+    }
+  }, [poem, customization.formatting]);
+
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -537,8 +551,8 @@ export default function PoemGenerator() {
                     <Skeleton className="h-6 w-full" />
                     <Skeleton className="h-6 w-4/6" />
                   </div>
-                ) : poem ? (
-                  <p className="whitespace-pre-wrap font-body text-base leading-relaxed">{poem}</p>
+                ) : formattedPoem ? (
+                  <p className="whitespace-pre-wrap font-body text-base leading-relaxed">{formattedPoem}</p>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                     <p className="font-headline text-xl">Your poem will appear here.</p>
@@ -610,7 +624,7 @@ export default function PoemGenerator() {
                       )}
                       <div className={`flex-grow flex flex-col justify-center ${frameTextClassName}`}>
                         <h3 className="font-headline text-xl mb-4 text-center">{poemTitle}</h3>
-                        <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{poem}</p>
+                        <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{formattedPoem}</p>
                       </div>
                   </div>
                 </div>

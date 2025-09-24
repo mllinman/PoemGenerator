@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -177,6 +177,12 @@ export default function SavedPoemsPage() {
 
   const frameClassName = frames.find((f) => f.id === selectedFrame)?.className || '';
   const frameTextClassName = frames.find((f) => f.id === selectedFrame)?.textClassName || '';
+  
+  const formattedPoem = useMemo(() => {
+    if (!selectedPoem) return null;
+    return selectedPoem.poem;
+  }, [selectedPoem]);
+
 
   if (loading || !user) {
     return (
@@ -304,7 +310,7 @@ export default function SavedPoemsPage() {
                       )}
                       <div className={`flex-grow flex flex-col justify-center ${frameTextClassName}`}>
                         <h3 className="font-headline text-xl mb-4 text-center">{selectedPoem.title}</h3>
-                        <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{selectedPoem.poem}</p>
+                        <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{formattedPoem}</p>
                       </div>
                   </div>
                 </div>
