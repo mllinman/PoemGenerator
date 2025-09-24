@@ -12,6 +12,7 @@ import {
   SlidersHorizontal,
   Save,
   Download,
+  Image as ImageIconPng,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -75,6 +76,9 @@ const fonts = [
   { id: 'pt_sans', name: 'PT Sans', className: 'font-body' },
   { id: 'dancing_script', name: 'Dancing Script', className: '[&_p]:font-dancing-script' },
   { id: 'courier_prime', name: 'Courier Prime', className: '[&_p]:font-courier-prime' },
+  { id: 'merriweather', name: 'Merriweather', className: '[&_p]:font-merriweather' },
+  { id: 'lora', name: 'Lora', className: '[&_p]:font-lora' },
+  { id: 'caveat', name: 'Caveat', className: '[&_p]:font-caveat' },
 ];
 
 export default function PoemGenerator() {
@@ -105,7 +109,7 @@ export default function PoemGenerator() {
   // Print Dialog state
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState(frames[0].id);
-  const [isPrinting, setIsPrinting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [includeImageInPrint, setIncludeImageInPrint] = useState(true);
   const printableRef = useRef<HTMLDivElement>(null);
   const [selectedFont, setSelectedFont] = useState(fonts[0].id);
@@ -304,40 +308,64 @@ export default function PoemGenerator() {
     }
   };
 
-  const handlePrint = async () => {
+  const handleDownload = async (format: 'pdf' | 'png') => {
     if (!printableRef.current) return;
 
-    setIsPrinting(true);
+    setIsProcessing(true);
     try {
       const canvas = await html2canvas(printableRef.current, {
-        scale: 3, // Increased scale for better resolution on PDF
+        scale: 3,
         useCORS: true,
         backgroundColor: null,
       });
       const imgData = canvas.toDataURL('image/png');
-      
-      // Create a new jsPDF instance with 8x10 inch dimensions
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'in',
-        format: [8, 10]
-      });
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`poem-for-ashleigh.pdf`);
+      if (format === 'pdf') {
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'in',
+          format: [8, 10],
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const canvasAspectRatio = canvas.width / canvas.height;
+        const pdfAspectRatio = pdfWidth / pdfHeight;
+
+        let renderWidth, renderHeight, x, y;
+
+        if (canvasAspectRatio > pdfAspectRatio) {
+          renderWidth = pdfWidth;
+          renderHeight = pdfWidth / canvasAspectRatio;
+          x = 0;
+          y = (pdfHeight - renderHeight) / 2;
+        } else {
+          renderHeight = pdfHeight;
+          renderWidth = pdfHeight * canvasAspectRatio;
+          y = 0;
+          x = (pdfWidth - renderWidth) / 2;
+        }
+
+        pdf.addImage(imgData, 'PNG', x, y, renderWidth, renderHeight);
+        pdf.save('poem-for-ashleigh.pdf');
+      } else {
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = 'poem-for-ashleigh.png';
+        link.click();
+      }
     } catch (error) {
-      console.error('Failed to generate PDF:', error);
+      console.error(`Failed to generate ${format}:`, error);
       toast({
         variant: 'destructive',
-        title: 'PDF Generation Failed',
-        description: 'An unexpected error occurred while creating the PDF.',
+        title: `${format.toUpperCase()} Generation Failed`,
+        description: `An unexpected error occurred while creating the ${format}.`,
       });
     } finally {
-      setIsPrinting(false);
-      setIsPrintDialogOpen(false);
+      setIsProcessing(false);
+      if (format === 'pdf') {
+        setIsPrintDialogOpen(false);
+      }
     }
   };
 
@@ -674,7 +702,7 @@ export default function PoemGenerator() {
                     style={{ backgroundColor: backgroundColor, color: fontColor }}
                   >
                       {includeImageInPrint && (
-                        <div className="w-full h-[40%] relative mb-4">
+                        <div className="w-full relative flex-shrink-0" style={{ height: '40%' }}>
                             <Image
                             src={imageDataUri}
                             alt="Poem inspiration"
@@ -683,10 +711,10 @@ export default function PoemGenerator() {
                             />
                         </div>
                       )}
-                      <div className={`flex-grow flex flex-col justify-center overflow-hidden`}>
+                      <div className={`flex-grow flex flex-col justify-center overflow-hidden pt-4`}>
                         <h3 className="font-headline text-xl mb-4 text-center flex-shrink-0">{poemTitle}</h3>
-                         <div className="overflow-y-auto">
-                           <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{displayPoem}</p>
+                         <div className="overflow-hidden flex-grow">
+                           <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center h-full">{displayPoem}</p>
                         </div>
                       </div>
                   </div>
@@ -775,9 +803,13 @@ export default function PoemGenerator() {
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button onClick={handlePrint} disabled={isPrinting}>
-                {isPrinting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isPrinting ? 'Generating PDF...' : 'Download PDF'}
+              <Button onClick={() => handleDownload('png')} disabled={isProcessing}>
+                {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImageIconPng className="mr-2 h-4 w-4" />}
+                Download PNG
+              </Button>
+              <Button onClick={() => handleDownload('pdf')} disabled={isProcessing}>
+                {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {isProcessing ? 'Generating...' : 'Download PDF'}
               </Button>
             </DialogFooter>
           </DialogContent>

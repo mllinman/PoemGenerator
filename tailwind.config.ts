@@ -21,6 +21,9 @@ export default {
         headline: ['Playfair Display', 'serif'],
         'dancing-script': ['Dancing Script', 'cursive'],
         'courier-prime': ['Courier Prime', 'monospace'],
+        merriweather: ['Merriweather', 'serif'],
+        lora: ['Lora', 'serif'],
+        caveat: ['Caveat', 'cursive'],
         code: ['monospace'],
       },
       colors: {
