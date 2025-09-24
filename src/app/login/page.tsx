@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { PenLine } from 'lucide-react';
+import { PenLine, UserCheck } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
@@ -61,6 +61,35 @@ export default function LoginPage() {
     }
     setIsLoading(false);
   };
+  
+  const handleGuestSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signInWithEmail('test@example.com', 'password');
+      router.push('/saved-poems');
+    } catch (error: any) {
+        if (error.code === 'auth/user-not-found') {
+            try {
+                await signUpWithEmail('test@example.com', 'password');
+                await signInWithEmail('test@example.com', 'password');
+                router.push('/saved-poems');
+            } catch (signupError: any) {
+                 toast({
+                    variant: 'destructive',
+                    title: 'Guest Sign-in Failed',
+                    description: signupError.message,
+                });
+            }
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Guest Sign-in Failed',
+                description: error.message,
+            });
+        }
+    }
+    setIsLoading(false);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -78,6 +107,22 @@ export default function LoginPage() {
         </div>
         
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-8">
+            <Button
+                variant="secondary"
+                className="w-full mb-6"
+                onClick={handleGuestSignIn}
+                disabled={isLoading}
+            >
+                <UserCheck className="mr-2 h-4 w-4" />
+                Continue as Guest
+            </Button>
+
+            <div className="relative mb-6">
+                <Separator />
+                <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-card px-2 text-xs text-muted-foreground">OR</span>
+            </div>
+
+
             <form onSubmit={handleEmailAuth} className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
