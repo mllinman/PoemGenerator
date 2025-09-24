@@ -44,14 +44,24 @@ const customizePoemStylePrompt = ai.definePrompt({
   output: { schema: CustomizePoemStyleOutputSchema },
   prompt: `You are an expert poet and editor. You will be given a poem and instructions on how to customize it.
 
-Original Poem: {{{originalPoem}}}
+Please generate a new poem that incorporates the user's customization requests.
 
-Style: {{{style}}}
-Length: {{{length}}}
-Tone: {{{tone}}}
-Formatting: {{{formatting}}}
+Original Poem:
+{{{originalPoem}}}
 
-Please generate a new poem that incorporates the user's customization requests. If the user requests 'compact' formatting, reduce the line breaks between stanzas. If they request 'spaced out', add extra line breaks. For 'standard', use a single blank line between stanzas.`, 
+Customization Instructions:
+{{~#if style}}
+- Style: {{{style}}}
+{{~/if}}
+{{~#if length}}
+- Length: {{{length}}}
+{{~/if}}
+{{~#if tone}}
+- Tone: {{{tone}}}
+{{~/if}}
+{{~#if formatting}}
+- Formatting: If 'compact', reduce line breaks between stanzas. If 'spaced out', add extra line breaks. For 'standard', use a single blank line between stanzas. The user wants '{{{formatting}}}' formatting.
+{{~/if}}`, 
 });
 
 // Define the Genkit flow for customizing the poem style.

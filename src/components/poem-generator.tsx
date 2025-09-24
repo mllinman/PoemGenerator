@@ -59,11 +59,11 @@ type CustomizationOptions = {
 
 const frames = [
   { id: 'none', name: 'None', className: '', textClassName: '' },
-  { id: 'simple-black', name: 'Simple Black', className: 'p-2 bg-black', textClassName: '' },
-  { id: 'wood', name: 'Wooden Frame', className: 'border-[16px] border-yellow-800 bg-yellow-950 p-4 shadow-inner', textClassName: '' },
-  { id: 'gilt', name: 'Gilded Frame', className: 'border-[20px] border-yellow-500 bg-yellow-700 p-4 shadow-xl', textClassName: '' },
+  { id: 'simple-black', name: 'Simple Black', className: 'p-2 bg-black', textClassName: 'text-white' },
+  { id: 'wood', name: 'Wooden Frame', className: 'border-[16px] border-yellow-800 bg-yellow-950 p-4 shadow-inner', textClassName: 'text-white' },
+  { id: 'gilt', name: 'Gilded Frame', className: 'border-[20px] border-yellow-500 bg-yellow-700 p-4 shadow-xl', textClassName: 'text-white' },
   { id: 'modern', name: 'Modern', className: 'border-2 border-gray-300 p-1 bg-white', textClassName: 'text-black' },
-  { id: 'barnwood', name: 'Barnwood', className: 'border-[24px] border-amber-900/80 bg-amber-950 p-4 shadow-lg', textClassName: '' },
+  { id: 'barnwood', name: 'Barnwood', className: 'border-[24px] border-amber-900/80 bg-amber-950 p-4 shadow-lg', textClassName: 'text-white' },
   { id: 'silver', name: 'Elegant Silver', className: 'border-[12px] border-gray-400 bg-gray-200 p-4 shadow-lg', textClassName: 'text-black' },
   { id: 'gallery', name: 'Gallery', className: 'p-8 bg-white', textClassName: 'text-black' }
 ];
@@ -219,7 +219,11 @@ export default function PoemGenerator() {
         });
       } catch (error) {
         console.error('Error sharing:', error);
-        // Fallback to copy
+        toast({
+            variant: 'destructive',
+            title: 'Share Failed',
+            description: 'Could not share the poem. It has been copied to your clipboard instead.',
+        });
         handleCopy();
       }
     } else {
@@ -341,11 +345,16 @@ export default function PoemGenerator() {
 
   const formattedPoem = useMemo(() => {
     if (!poem) return null;
+    return poem.replace(/\n\n/g, '\n\n');
+  }, [poem]);
+  
+  const displayPoem = useMemo(() => {
+    if (!poem) return null;
     switch (customization.formatting) {
       case 'compact':
-        return poem.replace(/\n\n/g, '\n');
+        return poem.replace(/\n{2,}/g, '\n');
       case 'spaced_out':
-        return poem.replace(/\n\n/g, '\n\n\n');
+        return poem.replace(/\n{2,}/g, '\n\n\n');
       case 'standard':
       default:
         return poem;
@@ -547,8 +556,8 @@ export default function PoemGenerator() {
                     <Skeleton className="h-6 w-full" />
                     <Skeleton className="h-6 w-4/6" />
                   </div>
-                ) : formattedPoem ? (
-                  <p className="whitespace-pre-wrap font-body text-base leading-relaxed">{formattedPoem}</p>
+                ) : displayPoem ? (
+                  <p className="whitespace-pre-wrap font-body text-base leading-relaxed">{displayPoem}</p>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                     <p className="font-headline text-xl">Your poem will appear here.</p>
@@ -585,7 +594,7 @@ export default function PoemGenerator() {
             </div>
             <div className="max-h-60 overflow-y-auto rounded-md border bg-muted p-4">
                 <p className="whitespace-pre-wrap font-body text-sm text-muted-foreground">
-                    {formattedPoem}
+                    {displayPoem}
                 </p>
             </div>
           </div>
@@ -625,7 +634,9 @@ export default function PoemGenerator() {
                       )}
                       <div className={`flex-grow flex flex-col justify-center ${frameTextClassName}`}>
                         <h3 className="font-headline text-xl mb-4 text-center">{poemTitle}</h3>
-                        <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{formattedPoem}</p>
+                        <div className="max-h-60 overflow-y-auto">
+                           <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{displayPoem}</p>
+                        </div>
                       </div>
                   </div>
                 </div>
