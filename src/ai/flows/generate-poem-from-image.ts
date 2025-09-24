@@ -38,6 +38,8 @@ const generatePoemPrompt = ai.definePrompt({
   prompt: `You are a skilled poet who can create poems based on images.
 
   Analyze the image provided and write a poem based on its visual elements, mood, and overall impression.
+  
+  IMPORTANT: The poem must be broken into stanzas. Stanzas should be separated by a single blank line.
 
   Image: {{media url=photoDataUri}}
 
@@ -45,7 +47,7 @@ const generatePoemPrompt = ai.definePrompt({
   {{~#if length}}Length: {{{length}}}{{/if}}
   {{~#if tone}}Tone: {{{tone}}}{{/if}}
 
-  Write a poem.`, // Added 'Write a poem' instruction
+  Write a poem.`,
 });
 
 const generatePoemFromImageFlow = ai.defineFlow(
