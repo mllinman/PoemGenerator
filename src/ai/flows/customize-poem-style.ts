@@ -21,6 +21,8 @@ const CustomizePoemStyleInputSchema = z.object({
   length: z.string().optional().describe('The desired length of the poem (e.g., short, medium, long).'),
   tone: z.string().optional().describe('The desired tone of the poem (e.g., happy, sad, reflective).'),
   formatting: z.string().optional().describe('The desired formatting of the poem (e.g., compact, standard, spaced out).'),
+  rhymeScheme: z.string().optional().describe('The desired rhyme scheme for the poem (e.g., AABB, ABAB, none).'),
+  imagery: z.string().optional().describe('The desired imagery focus for the poem (e.g., vivid, abstract, nature).'),
 });
 
 export type CustomizePoemStyleInput = z.infer<typeof CustomizePoemStyleInputSchema>;
@@ -58,6 +60,12 @@ Customization Instructions:
 {{~/if}}
 {{~#if tone}}
 - Tone: {{{tone}}}
+{{~/if}}
+{{~#if rhymeScheme}}
+- Rhyme Scheme: {{{rhymeScheme}}}
+{{~/if}}
+{{~#if imagery}}
+- Imagery Focus: {{{imagery}}}
 {{~/if}}
 {{~#if formatting}}
 - Formatting: If 'compact', reduce line breaks between stanzas. If 'spaced out', add extra line breaks. For 'standard', use a single blank line between stanzas. The user wants '{{{formatting}}}' formatting.

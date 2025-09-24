@@ -55,6 +55,8 @@ type CustomizationOptions = {
   length: string;
   tone: string;
   formatting: string;
+  rhymeScheme: string;
+  imagery: string;
 };
 
 const frames = [
@@ -80,6 +82,8 @@ export default function PoemGenerator() {
     length: 'medium',
     tone: 'reflective',
     formatting: 'standard',
+    rhymeScheme: 'none',
+    imagery: 'vivid',
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -475,6 +479,34 @@ export default function PoemGenerator() {
                       <SelectItem value="melancholic">Melancholic</SelectItem>
                       <SelectItem value="humorous">Humorous</SelectItem>
                       <SelectItem value="romantic">Romantic</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="rhyme-scheme">Rhyme Scheme</Label>
+                  <Select value={customization.rhymeScheme} onValueChange={handleCustomizationChange('rhymeScheme')} name="rhymeScheme">
+                    <SelectTrigger id="rhyme-scheme">
+                      <SelectValue placeholder="Select rhyme scheme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None (Free Verse)</SelectItem>
+                      <SelectItem value="aabb">AABB</SelectItem>
+                      <SelectItem value="abab">ABAB</SelectItem>
+                      <SelectItem value="abcb">ABCB</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="imagery">Imagery</Label>
+                  <Select value={customization.imagery} onValueChange={handleCustomizationChange('imagery')} name="imagery">
+                    <SelectTrigger id="imagery">
+                      <SelectValue placeholder="Select imagery style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="vivid">Vivid & Concrete</SelectItem>
+                      <SelectItem value="abstract">Abstract & Metaphorical</SelectItem>
+                      <SelectItem value="nature">Nature-focused</SelectItem>
+                      <SelectItem value="emotional">Emotional</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
