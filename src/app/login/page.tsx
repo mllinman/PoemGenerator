@@ -64,29 +64,33 @@ export default function LoginPage() {
   
   const handleGuestSignIn = async () => {
     setIsLoading(true);
+    const testEmail = 'test@example.com';
+    const testPassword = 'password';
     try {
-      await signInWithEmail('test@example.com', 'password');
+      // First, try to sign in
+      await signInWithEmail(testEmail, testPassword);
       router.push('/saved-poems');
     } catch (error: any) {
-        if (error.code === 'auth/user-not-found') {
-            try {
-                await signUpWithEmail('test@example.com', 'password');
-                await signInWithEmail('test@example.com', 'password');
-                router.push('/saved-poems');
-            } catch (signupError: any) {
-                 toast({
-                    variant: 'destructive',
-                    title: 'Guest Sign-in Failed',
-                    description: signupError.message,
-                });
-            }
-        } else {
-            toast({
-                variant: 'destructive',
-                title: 'Guest Sign-in Failed',
-                description: error.message,
-            });
+      // If user not found, create the user, then sign in again.
+      if (error.code === 'auth/user-not-found') {
+        try {
+          await signUpWithEmail(testEmail, testPassword);
+          await signInWithEmail(testEmail, testPassword);
+          router.push('/saved-poems');
+        } catch (signupError: any) {
+          toast({
+            variant: 'destructive',
+            title: 'Guest Sign-in Failed',
+            description: "Could not create a guest account. " + signupError.message,
+          });
         }
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Guest Sign-in Failed',
+          description: error.message,
+        });
+      }
     }
     setIsLoading(false);
   };
