@@ -299,7 +299,7 @@ export default function SavedPoemsPage() {
                 >
                   <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px] flex flex-col`}>
                       {includeImageInPrint && selectedPoem.imageDataUri && (
-                        <div className="w-full aspect-square relative mb-4">
+                        <div className="w-full h-[40%] relative mb-4">
                           <Image
                             src={selectedPoem.imageDataUri}
                             alt="Poem inspiration"
@@ -308,9 +308,9 @@ export default function SavedPoemsPage() {
                           />
                         </div>
                       )}
-                      <div className={`flex-grow flex flex-col justify-center ${frameTextClassName}`}>
-                        <h3 className="font-headline text-xl mb-4 text-center">{selectedPoem.title}</h3>
-                        <div className="max-h-60 overflow-y-auto">
+                      <div className={`flex-grow flex flex-col justify-center overflow-hidden ${frameTextClassName}`}>
+                        <h3 className="font-headline text-xl mb-4 text-center flex-shrink-0">{selectedPoem.title}</h3>
+                        <div className="overflow-y-auto">
                             <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{formattedPoem}</p>
                         </div>
                       </div>

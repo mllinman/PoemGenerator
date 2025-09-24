@@ -347,22 +347,22 @@ export default function PoemGenerator() {
   const frameClassName = frames.find((f) => f.id === selectedFrame)?.className || '';
   const frameTextClassName = frames.find((f) => f.id === selectedFrame)?.textClassName || '';
 
-  const formattedPoem = useMemo(() => {
-    if (!poem) return null;
-    return poem.replace(/\n\n/g, '\n\n');
-  }, [poem]);
-  
   const displayPoem = useMemo(() => {
     if (!poem) return null;
+    let formattedPoem = poem;
     switch (customization.formatting) {
       case 'compact':
-        return poem.replace(/\n{2,}/g, '\n');
+        formattedPoem = poem.replace(/\n{2,}/g, '\n');
+        break;
       case 'spaced_out':
-        return poem.replace(/\n{2,}/g, '\n\n\n');
+        formattedPoem = poem.replace(/\n{2,}/g, '\n\n\n');
+        break;
       case 'standard':
       default:
-        return poem;
+        // No change needed from original
+        break;
     }
+    return formattedPoem;
   }, [poem, customization.formatting]);
 
 
@@ -655,7 +655,7 @@ export default function PoemGenerator() {
                 >
                   <div ref={printableRef} className={`p-4 ${frameClassName} bg-card text-card-foreground aspect-[4/5] w-[400px] flex flex-col`}>
                       {includeImageInPrint && (
-                        <div className="w-full aspect-square relative mb-4">
+                        <div className="w-full h-[40%] relative mb-4">
                             <Image
                             src={imageDataUri}
                             alt="Poem inspiration"
@@ -664,9 +664,9 @@ export default function PoemGenerator() {
                             />
                         </div>
                       )}
-                      <div className={`flex-grow flex flex-col justify-center ${frameTextClassName}`}>
-                        <h3 className="font-headline text-xl mb-4 text-center">{poemTitle}</h3>
-                        <div className="max-h-60 overflow-y-auto">
+                      <div className={`flex-grow flex flex-col justify-center overflow-hidden ${frameTextClassName}`}>
+                        <h3 className="font-headline text-xl mb-4 text-center flex-shrink-0">{poemTitle}</h3>
+                         <div className="overflow-y-auto">
                            <p className="whitespace-pre-wrap font-body text-sm leading-relaxed text-center">{displayPoem}</p>
                         </div>
                       </div>
