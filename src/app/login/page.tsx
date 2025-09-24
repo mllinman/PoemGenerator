@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { PenLine, UserCheck } from 'lucide-react';
+import { PenLine, UserCheck, ShieldCheck } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
@@ -72,7 +72,7 @@ export default function LoginPage() {
       router.push('/saved-poems');
     } catch (error: any) {
       // If user not found, create the user, then sign in again.
-      if (error.code === 'auth/user-not-found') {
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
         try {
           await signUpWithEmail(testEmail, testPassword);
           await signInWithEmail(testEmail, testPassword);
@@ -88,6 +88,37 @@ export default function LoginPage() {
         toast({
           variant: 'destructive',
           title: 'Guest Sign-in Failed',
+          description: error.message,
+        });
+      }
+    }
+    setIsLoading(false);
+  };
+
+  const handleAdminSignIn = async () => {
+    setIsLoading(true);
+    const adminEmail = 'admin@example.com';
+    const adminPassword = 'adminpassword';
+    try {
+      await signInWithEmail(adminEmail, adminPassword);
+      router.push('/saved-poems');
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        try {
+          await signUpWithEmail(adminEmail, adminPassword);
+          await signInWithEmail(adminEmail, adminPassword);
+          router.push('/saved-poems');
+        } catch (signupError: any) {
+          toast({
+            variant: 'destructive',
+            title: 'Admin Sign-in Failed',
+            description: "Could not create an admin account. " + signupError.message,
+          });
+        }
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Admin Sign-in Failed',
           description: error.message,
         });
       }
@@ -111,15 +142,27 @@ export default function LoginPage() {
         </div>
         
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-8">
-            <Button
-                variant="secondary"
-                className="w-full mb-6"
-                onClick={handleGuestSignIn}
-                disabled={isLoading}
-            >
-                <UserCheck className="mr-2 h-4 w-4" />
-                Continue as Guest
-            </Button>
+            <div className="flex flex-col space-y-2 mb-6">
+                <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={handleGuestSignIn}
+                    disabled={isLoading}
+                >
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    Continue as Guest
+                </Button>
+                <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={handleAdminSignIn}
+                    disabled={isLoading}
+                >
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Sign in as Admin
+                </Button>
+            </div>
+
 
             <div className="relative mb-6">
                 <Separator />
