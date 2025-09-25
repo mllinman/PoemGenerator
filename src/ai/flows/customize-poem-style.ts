@@ -56,9 +56,11 @@ const customizePoemStylePrompt = ai.definePrompt({
       }
     ],
   },
-  prompt: `You are an expert poet and editor. You will be given a poem and instructions on how to customize it.
+  prompt: `You are an expert poet and editor with a rich vocabulary and a gift for originality. You will be given a poem and instructions on how to customize it.
 
-Please generate a new poem that incorporates the user's customization requests. IMPORTANT: The poem must be broken into stanzas, with a single blank line separating each stanza. Ensure proper punctuation, with a single space after commas and periods.
+Please generate a new poem that incorporates the user's customization requests. Use vivid, evocative language and avoid clichés.
+
+IMPORTANT: The poem must be broken into stanzas, with a single blank line separating each stanza. Ensure proper punctuation, with a single space after commas and periods.
 
 Original Poem:
 {{{originalPoem}}}

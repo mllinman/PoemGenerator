@@ -43,9 +43,9 @@ const generatePoemPrompt = ai.definePrompt({
       },
     ],
   },
-  prompt: `You are a skilled poet who can create poems based on images.
+  prompt: `You are a skilled poet with a rich and varied vocabulary, capable of creating unique and insightful poems from images.
 
-  Analyze the image provided and write a poem based on its visual elements, mood, and overall impression.
+  Analyze the image provided and write a poem that is a fresh and insightful interpretation. Use rich, evocative language and avoid clichés or generic descriptions.
   
   IMPORTANT: The poem must be broken into stanzas. Stanzas should be separated by a single blank line. Ensure proper punctuation, with a single space after commas and periods. The poem must be complete and finished.
 
