@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
-  title: "Muse's Quill",
+  title: "Muse Quill",
   description: 'Generate beautiful poetry from your images.',
 };
 

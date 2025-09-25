@@ -123,7 +123,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-center gap-4 text-center mb-4">
                 <PenLine className="h-10 w-10 text-primary" />
                 <h1 className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                    Muse's Quill
+                    Muse Quill
                 </h1>
             </div>
             <p className="text-muted-foreground">

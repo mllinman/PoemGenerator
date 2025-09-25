@@ -29,7 +29,7 @@ export function Header() {
         <Link href="/" className="flex items-center gap-4">
           <PenLine className="h-10 w-10 text-primary" />
           <h1 className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Muse's Quill
+            Muse Quill
           </h1>
         </Link>
       </div>
