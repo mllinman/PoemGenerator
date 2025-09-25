@@ -18,6 +18,7 @@ import {
   AlignRight,
   Minus,
   Plus,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -63,6 +64,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import ProFeatureDialog from './pro-feature-dialog';
 
 type CustomizationOptions = {
   style: string;
@@ -118,7 +120,7 @@ export default function PoemGenerator() {
   const [poemTitle, setPoemTitle] = useState('');
   const [saveWithImage, setSaveWithImage] = useState(true);
 
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
   const router = useRouter();
 
   // Print Dialog state
@@ -130,6 +132,9 @@ export default function PoemGenerator() {
   const [selectedFont, setSelectedFont] = useState(fonts[0].id);
   const [fontColor, setFontColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
+
+  // Pro features
+  const [isProDialogOpen, setIsProDialogOpen] = useState(false);
 
   // New layout and text controls
   const [layout, setLayout] = useState<LayoutType>('image-above');
@@ -271,6 +276,11 @@ export default function PoemGenerator() {
   };
 
   const handleSave = () => {
+    if (!isPro) {
+      setIsProDialogOpen(true);
+      return;
+    }
+
     if (!user) {
       toast({
         title: 'Please Log In',
@@ -377,6 +387,11 @@ export default function PoemGenerator() {
   };
 
   const openPrintDialog = () => {
+    if (!isPro) {
+      setIsProDialogOpen(true);
+      return;
+    }
+
     if (!poem || !imageDataUri) {
       toast({
         variant: 'destructive',
@@ -615,7 +630,7 @@ export default function PoemGenerator() {
                             <Save className="h-5 w-5" />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent><p>Save Poem</p></TooltipContent>
+                    <TooltipContent><p>Save Poem (Pro)</p></TooltipContent>
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -623,7 +638,7 @@ export default function PoemGenerator() {
                            <Download className="h-5 w-5" />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent><p>Download or Print</p></TooltipContent>
+                    <TooltipContent><p>Download or Print (Pro)</p></TooltipContent>
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -871,6 +886,7 @@ export default function PoemGenerator() {
           </DialogContent>
         </Dialog>
       )}
+      <ProFeatureDialog open={isProDialogOpen} onOpenChange={setIsProDialogOpen} />
     </TooltipProvider>
   );
 }

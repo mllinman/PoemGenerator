@@ -1,6 +1,6 @@
 "use client";
 
-import { PenLine, Bookmark, LogIn, LogOut } from 'lucide-react';
+import { PenLine, Bookmark, LogIn, LogOut, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
@@ -13,9 +13,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Badge } from './ui/badge';
 
 export function Header() {
-  const { user, loading } = useAuth();
+  const { user, loading, isPro } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -39,19 +40,35 @@ export function Header() {
       <div className="absolute top-4 right-4 flex items-center gap-2">
         <TooltipProvider>
           {user && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button asChild variant="ghost" size="icon">
-                  <Link href="/saved-poems">
-                    <Bookmark />
-                    <span className="sr-only">Saved Poems</span>
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Saved Poems</p>
-              </TooltipContent>
-            </Tooltip>
+             <div className="relative">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button asChild variant="ghost" size="icon">
+                    <Link href="/saved-poems">
+                      <Bookmark />
+                      <span className="sr-only">Saved Poems</span>
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Saved Poems</p>
+                </TooltipContent>
+              </Tooltip>
+              {isPro && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="absolute -top-1 -right-2 pointer-events-none">
+                      <Badge variant="destructive" className="h-4 w-4 p-0 flex items-center justify-center">
+                          <Sparkles className="h-3 w-3" />
+                      </Badge>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Pro User</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           )}
 
           {!loading &&
