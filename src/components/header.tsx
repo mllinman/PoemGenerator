@@ -1,12 +1,21 @@
 "use client";
 
-import { PenLine, Bookmark, LogIn, LogOut, Home } from 'lucide-react';
+import { PenLine, Bookmark, LogIn, LogOut, Home, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { logout } from '@/lib/auth';
 import { useRouter, usePathname } from 'next/navigation';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   Tooltip,
   TooltipContent,
@@ -23,6 +32,15 @@ export function Header() {
     await logout();
     router.push('/');
   };
+
+  const getInitials = (name?: string | null) => {
+    if (!name) return 'U';
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return names[0][0] + names[names.length - 1][0];
+    }
+    return name[0];
+  }
 
   return (
     <header className="py-8 px-4 sm:px-6 lg:px-8 relative">
@@ -55,37 +73,53 @@ export function Header() {
               </Tooltip>
           )}
 
-          {user && (
-             <div className="relative">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button asChild variant="ghost" size="icon">
-                    <Link href="/saved-poems">
-                      <Bookmark />
-                      <span className="sr-only">Saved Poems</span>
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Saved Poems</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          )}
-
           {!loading &&
             (user ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={handleLogout}>
-                    <LogOut />
-                    <span className="sr-only">Log Out</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Log Out</p>
-                </TooltipContent>
-              </Tooltip>
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                          <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Profile & Settings</p>
+                  </TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.displayName || 'Muse'}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/saved-poems">
+                      <Bookmark className="mr-2 h-4 w-4" />
+                      <span>Saved Poems</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Tooltip>
                 <TooltipTrigger asChild>

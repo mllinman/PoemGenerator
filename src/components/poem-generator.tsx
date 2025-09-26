@@ -118,7 +118,7 @@ export default function PoemGenerator() {
   const [poemTitle, setPoemTitle] = useState('');
   const [saveWithImage, setSaveWithImage] = useState(true);
 
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   // Print Dialog state
@@ -136,34 +136,66 @@ export default function PoemGenerator() {
   const [textAlign, setTextAlign] = useState('center');
   const [fontSize, setFontSize] = useState(14);
   const [imageOpacity, setImageOpacity] = useState(50);
-
-
+  
+  // Persistence logic
   useEffect(() => {
-    const defaultImage = PlaceHolderImages.find((img) => img.id === 'ashleigh');
-    if (defaultImage) {
-      setImagePreviewUrl(defaultImage.imageUrl);
-      const convertUrlToDataUri = async (url: string) => {
-        try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error('Network response was not ok.');
-          const blob = await response.blob();
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            setImageDataUri(reader.result as string);
-          };
-          reader.readAsDataURL(blob);
-        } catch (error) {
-          console.error('Failed to load initial image:', error);
-          toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Could not load the default image.',
-          });
+    // Only run on client after auth has loaded
+    if (typeof window === 'undefined' || authLoading) return;
+
+    try {
+      const savedState = localStorage.getItem('lastGeneratedPoem');
+      if (savedState) {
+        const { imageDataUri: savedImage, poem: savedPoem, title: savedTitle } = JSON.parse(savedState);
+        if (savedImage) {
+          setImageDataUri(savedImage);
+          setImagePreviewUrl(savedImage); // Data URI can be used directly as preview
         }
-      };
-      convertUrlToDataUri(defaultImage.imageUrl);
+        if (savedPoem) {
+          setPoem(savedPoem);
+        }
+        if (savedTitle) {
+          setPoemTitle(savedTitle);
+        }
+      } else {
+        // Load default image if no saved state
+        const defaultImage = PlaceHolderImages.find((img) => img.id === 'ashleigh');
+        if (defaultImage && !imageDataUri) {
+          setImagePreviewUrl(defaultImage.imageUrl);
+          const convertUrlToDataUri = async (url: string) => {
+            try {
+              const response = await fetch(url);
+              if (!response.ok) throw new Error('Network response was not ok.');
+              const blob = await response.blob();
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setImageDataUri(reader.result as string);
+              };
+              reader.readAsDataURL(blob);
+            } catch (error) {
+              console.error('Failed to load initial image:', error);
+            }
+          };
+          convertUrlToDataUri(defaultImage.imageUrl);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load state from localStorage", error);
     }
-  }, [toast]);
+  }, [authLoading]);
+
+  // Effect to save state to localStorage whenever poem or image changes
+  useEffect(() => {
+    if (typeof window === 'undefined' || authLoading) return;
+    try {
+       if (imageDataUri || poem || poemTitle) {
+        const stateToSave = { imageDataUri, poem, title: poemTitle };
+        localStorage.setItem('lastGeneratedPoem', JSON.stringify(stateToSave));
+      }
+    } catch (error) {
+      console.error("Failed to save state to localStorage", error);
+    }
+  }, [imageDataUri, poem, poemTitle, authLoading]);
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -176,8 +208,17 @@ export default function PoemGenerator() {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageDataUri(reader.result as string);
-        setPoem(null);
+        const dataUri = reader.result as string;
+        setImageDataUri(dataUri);
+        setPoem(null); // Clear poem when new image is uploaded
+        setPoemTitle(''); // Clear title as well
+        // Also update localStorage
+        try {
+          const stateToSave = { imageDataUri: dataUri, poem: null, title: '' };
+          localStorage.setItem('lastGeneratedPoem', JSON.stringify(stateToSave));
+        } catch (error) {
+           console.error("Failed to save state to localStorage", error);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -315,10 +356,10 @@ export default function PoemGenerator() {
       });
       toast({
         title: 'Poem Saved',
-        description: 'Your poem has been saved to your account.',
+        description: 'Your poem has been saved to your collection.',
       });
       setIsSaveDialogOpen(false);
-      setPoemTitle('');
+      
     } catch (error) {
       console.error('Failed to save poem:', error);
       toast({
@@ -624,7 +665,7 @@ export default function PoemGenerator() {
                <div className="flex items-center gap-1">
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={handleSave} disabled={!poem}>
+                        <Button variant="ghost" size="icon" onClick={handleSave} disabled={!poem || !user}>
                             <Save className="h-5 w-5" />
                         </Button>
                     </TooltipTrigger>
@@ -632,7 +673,7 @@ export default function PoemGenerator() {
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={openPrintDialog} disabled={!poem}>
+                        <Button variant="ghost" size="icon" onClick={openPrintDialog} disabled={!poem || !user}>
                            <Download className="h-5 w-5" />
                         </Button>
                     </TooltipTrigger>
