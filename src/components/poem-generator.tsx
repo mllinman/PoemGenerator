@@ -751,9 +751,7 @@ export default function PoemGenerator() {
             </div>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
-            </DialogClose>
+            <Button type="button" variant="outline" onClick={() => setIsSaveDialogOpen(false)}>Cancel</Button>
             <Button type="button" onClick={confirmSave}>Save to Collection</Button>
           </DialogFooter>
         </DialogContent>
@@ -829,6 +827,7 @@ export default function PoemGenerator() {
                                 id="include-image-main"
                                 checked={includeImageInPrint}
                                 onCheckedChange={(checked) => setIncludeImageInPrint(Boolean(checked))}
+                                disabled={!imageDataUri}
                             />
                             <Label htmlFor="include-image-main">Include Image</Label>
                         </div>
@@ -838,7 +837,7 @@ export default function PoemGenerator() {
                         <h3 className="font-headline text-lg">Layout & Style</h3>
                         <div>
                             <Label>Layout</Label>
-                            <ToggleGroup type="single" value={layout} onValueChange={(value: LayoutType) => value && setLayout(value)} className="w-full">
+                            <ToggleGroup type="single" value={layout} onValueChange={(value: LayoutType) => value && setLayout(value)} className="w-full" disabled={!includeImageInPrint}>
                                 <ToggleGroupItem value="image-above" className="w-1/2">Image Above</ToggleGroupItem>
                                 <ToggleGroupItem value="text-overlay" className="w-1/2">Text Overlay</ToggleGroupItem>
                             </ToggleGroup>
@@ -856,7 +855,7 @@ export default function PoemGenerator() {
                               </SelectContent>
                           </Select>
                         </div>
-                         {layout === 'text-overlay' && (
+                         {layout === 'text-overlay' && includeImageInPrint && (
                             <div className="space-y-2">
                                 <Label htmlFor="image-opacity">Image Opacity</Label>
                                 <Slider id="image-opacity" value={[imageOpacity]} onValueChange={(val) => setImageOpacity(val[0])} max={100} step={1} />
@@ -871,7 +870,7 @@ export default function PoemGenerator() {
                           <Select value={selectedFont} onValueChange={setSelectedFont}>
                             <SelectTrigger id="font-select">
                               <SelectValue placeholder="Select a font" />
-                            </SelectTrigger>
+                            </Trigger>
                             <SelectContent>
                               {fonts.map((font) => (
                                 <SelectItem key={font.id} value={font.id}>{font.name}</SelectItem>
