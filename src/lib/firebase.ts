@@ -3,14 +3,16 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  projectId: "studio-3769717297-cfea7",
-  appId: "1:251750681972:web:e4937b9101dbf0dfdef021",
-  apiKey: "AIzaSyCVUtAywMjPtvBuRBwkds3-iGv8lr1yU74",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "studio-3769717297-cfea7.firebaseapp.com",
-  measurementId: "",
-  messagingSenderId: "251750681972"
+  projectId: "studio-3769717297-cfea7",
+  storageBucket: "studio-3769717297-cfea7.appspot.com",
+  messagingSenderId: "251750681972",
+  appId: "1:251750681972:web:e4937b9101dbf0dfdef021"
 };
 
+
+// Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
