@@ -911,5 +911,3 @@ export default function PoemGenerator() {
     </TooltipProvider>
   );
 }
-
-    
