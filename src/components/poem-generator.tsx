@@ -313,15 +313,7 @@ export default function PoemGenerator() {
 
   const handleSave = () => {
     if (!user) {
-      toast({
-        title: 'Please Log In',
-        description: 'You need to be logged in to save poems.',
-        action: (
-            <Button onClick={() => router.push('/login')} variant="secondary">
-                Login
-            </Button>
-        )
-      });
+      router.push('/login');
       return;
     }
 
@@ -419,15 +411,7 @@ export default function PoemGenerator() {
 
   const openPrintDialog = () => {
     if (!user) {
-      toast({
-        title: 'Please Log In',
-        description: 'You need to be logged in to download poems.',
-        action: (
-            <Button onClick={() => router.push('/login')} variant="secondary">
-                Login
-            </Button>
-        )
-      });
+      router.push('/login');
       return;
     }
 
@@ -665,7 +649,7 @@ export default function PoemGenerator() {
                <div className="flex items-center gap-1">
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={handleSave} disabled={!poem || !user}>
+                        <Button variant="ghost" size="icon" onClick={handleSave} disabled={!poem}>
                             <Save className="h-5 w-5" />
                         </Button>
                     </TooltipTrigger>
@@ -673,7 +657,7 @@ export default function PoemGenerator() {
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={openPrintDialog} disabled={!poem || !user}>
+                        <Button variant="ghost" size="icon" onClick={openPrintDialog} disabled={!poem}>
                            <Download className="h-5 w-5" />
                         </Button>
                     </TooltipTrigger>
@@ -927,3 +911,5 @@ export default function PoemGenerator() {
     </TooltipProvider>
   );
 }
+
+    
