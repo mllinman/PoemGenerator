@@ -6,8 +6,10 @@ import {
   signOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from 'firebase/auth';
-import { auth } from './firebase';
+import { auth, storage } from './firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -49,4 +51,22 @@ export const logout = async () => {
     console.error('Error signing out: ', error);
     throw error;
   }
+};
+
+
+export const updateUserProfile = async (displayName: string, photoFile?: File) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user is signed in.");
+
+  let photoURL = user.photoURL;
+  if (photoFile) {
+    const storageRef = ref(storage, `profile-pictures/${user.uid}`);
+    await uploadBytes(storageRef, photoFile);
+    photoURL = await getDownloadURL(storageRef);
+  }
+
+  await updateProfile(user, { displayName, photoURL });
+  
+  // Return the new URL to update the UI instantly
+  return { displayName, photoURL };
 };
