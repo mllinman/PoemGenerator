@@ -14,7 +14,7 @@ const GeneratePoemFromImageInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      'A photo to generate a poem from, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // Corrected typo here
+      "A photo to generate a poem from, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
   style: z.string().optional().describe('The style of the poem (e.g., Shakespearean, free verse).'),
   length: z.string().optional().describe('The desired length of the poem (e.g., short, medium, long).'),
