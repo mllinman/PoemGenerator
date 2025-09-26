@@ -851,8 +851,7 @@ export default function PoemGenerator() {
                     <div className="space-y-4">
                         <h3 className="font-headline text-lg">Typography</h3>
                          <div>
-                          <Label htmlFor="font-select">Font Family</Label>
-                          <Select value={selectedFont} onValueChange={setSelectedFont}>
+                          <Label htmlFor="font-select">Font Family</Label>                          <Select value={selectedFont} onValueChange={setSelectedFont}>
                             <SelectTrigger id="font-select">
                               <SelectValue placeholder="Select a font" />
                             </Trigger>
