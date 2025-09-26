@@ -711,9 +711,9 @@ export default function PoemGenerator() {
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">Cancel</Button>
             </DialogClose>
-            <Button onClick={confirmSave}>Save to Collection</Button>
+            <Button type="button" onClick={confirmSave}>Save to Collection</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
