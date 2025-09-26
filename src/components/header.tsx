@@ -13,10 +13,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Badge } from './ui/badge';
 
 export function Header() {
-  const { user, loading, isPro } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -54,20 +53,6 @@ export function Header() {
                   <p>Saved Poems</p>
                 </TooltipContent>
               </Tooltip>
-              {isPro && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="absolute -top-1 -right-2 pointer-events-none">
-                      <Badge variant="destructive" className="h-4 w-4 p-0 flex items-center justify-center">
-                          <Sparkles className="h-3 w-3" />
-                      </Badge>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Pro User</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
             </div>
           )}
 

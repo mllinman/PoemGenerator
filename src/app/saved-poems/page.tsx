@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { formatDistanceToNow } from 'date-fns';
-import { Loader2, Trash2, Download, Edit, Check, ImageIcon, Image as ImageIconPng, AlignCenter, AlignLeft, AlignRight, Plus, Minus, Sparkles } from 'lucide-react';
+import { Loader2, Trash2, Download, Edit, Check, ImageIcon, Image as ImageIconPng, AlignCenter, AlignLeft, AlignRight, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -40,8 +40,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Slider } from '@/components/ui/slider';
-import ProFeatureDialog from '@/components/pro-feature-dialog';
-
 
 type SavedPoem = Poem & { id: string };
 type LayoutType = 'image-above' | 'text-overlay';
@@ -85,9 +83,8 @@ export default function SavedPoemsPage() {
   const [imageOpacity, setImageOpacity] = useState(50);
   const { toast } = useToast();
   const printableRef = useRef<HTMLDivElement>(null);
-  const { user, loading, isPro } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
-  const [isProDialogOpen, setIsProDialogOpen] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -157,10 +154,6 @@ export default function SavedPoemsPage() {
   };
 
   const openPrintDialog = (poem: SavedPoem) => {
-    if (!isPro) {
-      setIsProDialogOpen(true);
-      return;
-    }
     setSelectedPoem(poem);
     setEditingTitle(poem.title);
     const frame = frames.find(f => f.id === selectedFrame) || frames[0];
@@ -313,7 +306,7 @@ export default function SavedPoemsPage() {
                           <Download className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent><p>Download or Print (Pro)</p></TooltipContent>
+                      <TooltipContent><p>Download or Print</p></TooltipContent>
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -510,7 +503,6 @@ export default function SavedPoemsPage() {
           </DialogContent>
         </Dialog>
       )}
-      <ProFeatureDialog open={isProDialogOpen} onOpenChange={setIsProDialogOpen} />
     </div>
     </TooltipProvider>
   );
