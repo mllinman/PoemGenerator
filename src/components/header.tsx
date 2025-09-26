@@ -1,12 +1,12 @@
 "use client";
 
-import { PenLine, Bookmark, LogIn, LogOut, Sparkles } from 'lucide-react';
+import { PenLine, Bookmark, LogIn, LogOut, Home } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { logout } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Tooltip,
   TooltipContent,
@@ -17,6 +17,7 @@ import {
 export function Header() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await logout();
@@ -38,6 +39,22 @@ export function Header() {
       </p>
       <div className="absolute top-4 right-4 flex items-center gap-2">
         <TooltipProvider>
+          {pathname !== '/' && (
+             <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button asChild variant="ghost" size="icon">
+                    <Link href="/">
+                      <Home />
+                      <span className="sr-only">Home</span>
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Home</p>
+                </TooltipContent>
+              </Tooltip>
+          )}
+
           {user && (
              <div className="relative">
               <Tooltip>
