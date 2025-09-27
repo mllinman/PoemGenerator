@@ -146,17 +146,11 @@ export default function PoemGenerator() {
     try {
       const savedState = localStorage.getItem('lastGeneratedPoem');
       if (savedState) {
-        const { imageDataUri: savedImage, poem: savedPoem, title: savedTitle } = JSON.parse(savedState);
-        if (savedImage) {
-          setImageDataUri(savedImage);
-          setImagePreviewUrl(savedImage); // Data URI can be used directly as preview
-        }
-        if (savedPoem) {
-          setPoem(savedPoem);
-        }
-        if (savedTitle) {
-          setPoemTitle(savedTitle);
-        }
+        const { imageDataUri: savedImage = null, poem: savedPoem = null, title: savedTitle = '' } = JSON.parse(savedState);
+        setImageDataUri(savedImage);
+        setImagePreviewUrl(savedImage);
+        setPoem(savedPoem);
+        setPoemTitle(savedTitle);
       } else {
         // Load default image if no saved state
         const defaultImage = PlaceHolderImages.find((img) => img.id === 'ashleigh');
@@ -912,3 +906,5 @@ export default function PoemGenerator() {
     </TooltipProvider>
   );
 }
+
+    
