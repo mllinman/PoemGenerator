@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getStripe } from "@/lib/stripe";
+// import { getStripe } from "@/lib/stripe"; // Temporarily disabled
 import { useToast } from "@/hooks/use-toast";
 
 interface ProFeatureDialogProps {
@@ -39,6 +39,9 @@ export default function ProFeatureDialog({ open, onOpenChange }: ProFeatureDialo
     }
 
     try {
+      // Temporarily disabled stripe integration
+      throw new Error('Pro upgrade temporarily unavailable');
+      /*
       const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -63,6 +66,7 @@ export default function ProFeatureDialog({ open, onOpenChange }: ProFeatureDialo
       if (error) {
         throw new Error(error.message);
       }
+      */
     } catch (error: any) {
       toast({
         variant: "destructive",
