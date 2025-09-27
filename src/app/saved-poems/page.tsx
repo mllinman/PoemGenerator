@@ -450,7 +450,7 @@ export default function SavedPoemsPage() {
                           <Select value={selectedFont} onValueChange={setSelectedFont}>
                             <SelectTrigger id="font-select">
                               <SelectValue placeholder="Select a font" />
-                            </Trigger>
+                            </SelectTrigger>
                             <SelectContent>
                               {fonts.map((font) => (
                                 <SelectItem key={font.id} value={font.id}>{font.name}</SelectItem>

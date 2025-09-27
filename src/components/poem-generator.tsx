@@ -232,7 +232,7 @@ export default function PoemGenerator() {
     setPoem(null);
     const result = await generatePoemAction({ photoDataUri: imageDataUri });
     if (result.success) {
-      setPoem(result.poem);
+      setPoem(result.poem || null);
       setPoemTitle('Untitled Poem');
     } else {
       toast({
@@ -262,7 +262,7 @@ export default function PoemGenerator() {
       ...customization,
     });
     if (result.success) {
-      setPoem(result.poem);
+      setPoem(result.poem || null);
     } else {
       toast({
         variant: 'destructive',
@@ -289,7 +289,7 @@ export default function PoemGenerator() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "A Poem from Muse's Quill",
+          title: "A Poem from Muse",
           text: poem,
         });
       } catch (error) {
@@ -849,7 +849,7 @@ export default function PoemGenerator() {
                           <Select value={selectedFont} onValueChange={setSelectedFont}>
                             <SelectTrigger id="font-select">
                               <SelectValue placeholder="Select a font" />
-                            </Trigger>
+                            </SelectTrigger>
                             <SelectContent>
                               {fonts.map((font) => (
                                 <SelectItem key={font.id} value={font.id}>{font.name}</SelectItem>
