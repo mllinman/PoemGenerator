@@ -1,4 +1,4 @@
-# **App Name**: Muse's Quill
+# **App Name**: Muse
 
 ## Core Features:
 

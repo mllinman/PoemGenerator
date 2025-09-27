@@ -87,7 +87,7 @@ export default function ProFeatureDialog({ open, onOpenChange }: ProFeatureDialo
             Unlock Pro Features
           </DialogTitle>
           <DialogDescription>
-            Upgrade to Muse Quill Pro to save and download your beautiful poems.
+            Upgrade to Muse Pro to save and download your beautiful poems.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">

@@ -9,7 +9,7 @@ export default function Home() {
         <PoemGenerator />
       </main>
       <footer className="text-center p-6 text-sm text-muted-foreground">
-        Crafted with 🤍 by Muse Quill.
+        Crafted with 🤍 by Muse.
       </footer>
     </div>
   );
